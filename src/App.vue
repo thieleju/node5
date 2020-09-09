@@ -1,45 +1,32 @@
 <template>
   <div id="app">
-    <app-nav />
-    <router-view calss="page" />
+    <div id="nav">
+      <router-link to="/">Home</router-link> |
+      <router-link to="/about">About</router-link>
+    </div>
+    <router-view />
   </div>
 </template>
 
-<script>
-import AppNav from "./components/AppNav"
-import axios from "axios"
-
-export default {
-  components: {
-    AppNav
-  },
-  created() {
-    const userString = localStorage.getItem("user")
-    if (userString) {
-      const userData = JSON.parse(userString)
-      this.$store.commit("SET_USER_DATA", userData)
-    }
-
-    axios.interceptors.response.use(
-      response => response,
-      error => {
-        if (error.response.status === 401) {
-          this.$store.dispatch("logout")
-        }
-        return Promise.reject(error)
-      }
-    )
-  }
+<style>
+#app {
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-align: center;
+  color: #2c3e50;
 }
-</script>
 
-<style lang="scss">
-@import "./assets/styles/global.scss";
-.page {
-  display: flex;
-  justify-content: center;
-  flex-direction: column;
-  align-items: center;
-  min-height: calc(100vh - 56px);
+#nav {
+  padding: 30px;
+}
+
+#nav a {
+  font-weight: bold;
+  color: #2c3e50;
+}
+
+#nav a.router-link-exact-active {
+  color: #42b983;
 }
 </style>

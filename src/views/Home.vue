@@ -1,19 +1,18 @@
 <template>
   <div class="home">
-    <h1>Welcome to the App!</h1>
-    <div v-if="!loggedIn">
-      To use this app you'll need to
-      <router-link to="/login">Login</router-link>
-    </div>
+    <img alt="Vue logo" src="../assets/logo.png" />
+    <HelloWorld msg="Welcome to Your Vue.js App" />
   </div>
 </template>
 
 <script>
-import { authComputed } from "../store/helpers.js"
+// @ is an alias to /src
+import HelloWorld from "@/components/HelloWorld.vue";
 
 export default {
-  computed: {
-    ...authComputed
+  name: "Home",
+  components: {
+    HelloWorld
   }
-}
+};
 </script>
