@@ -1,16 +1,17 @@
-import Vue from "vue";
-import VueRouter from "vue-router";
-import Home from "../views/Home.vue";
-import Dashboard from "../views/Dashboard.vue";
-import Login from "../views/Login.vue";
+import Vue from "vue"
+import VueRouter from "vue-router"
+import Dashboard from "../views/Dashboard.vue"
+import Login from "../views/Login.vue"
+import Register from "../views/Register.vue"
+import Startpage from "../views/Startpage.vue"
 
-Vue.use(VueRouter);
+Vue.use(VueRouter)
 
 const routes = [
   {
     path: "/",
-    name: "home",
-    component: Home
+    name: "startpage",
+    component: Startpage
   },
   {
     path: "/dashboard",
@@ -21,6 +22,11 @@ const routes = [
     path: "/login",
     name: "login",
     component: Login
+  },
+  {
+    path: "/register",
+    name: "register",
+    component: Register
   }
   // {
   //   path: "/about",
@@ -31,12 +37,12 @@ const routes = [
   //   component: () =>
   //     import(/* webpackChunkName: "about" */ "../views/About.vue")
   // }
-];
+]
 
 const router = new VueRouter({
   mode: "history",
   base: process.env.BASE_URL,
   routes
-});
+})
 
-export default router;
+export default router

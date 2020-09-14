@@ -1,8 +1,8 @@
-import Vue from "vue";
-import Vuex from "vuex";
-import axios from "axios";
+import Vue from "vue"
+import Vuex from "vuex"
+import axios from "axios"
 
-Vue.use(Vuex);
+Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
@@ -10,15 +10,15 @@ export default new Vuex.Store({
   },
   mutations: {
     SET_USER_DATA(state, userData) {
-      state.user = userData;
-      localStorage.setItem("user", JSON.stringify(userData));
+      state.user = userData
+      localStorage.setItem("user", JSON.stringify(userData))
       axios.defaults.headers.common[
         "Authorization"
-      ] = `Bearer ${userData.token}`;
+      ] = `Bearer ${userData.token}`
     },
     CLEAR_USER_DATA() {
-      localStorage.removeItem("user");
-      location.reload();
+      localStorage.removeItem("user")
+      location.reload()
     }
   },
   actions: {
@@ -26,24 +26,24 @@ export default new Vuex.Store({
       return axios
         .post("//localhost:3000/register", credentials)
         .then(({ data }) => {
-          commit("SET_USER_DATA", data);
-        });
+          commit("SET_USER_DATA", data)
+        })
     },
     login({ commit }, credentials) {
       return axios
         .post("//localhost:3000/login", credentials)
         .then(({ data }) => {
-          commit("SET_USER_DATA", data);
-        });
+          commit("SET_USER_DATA", data)
+        })
     },
     logout({ commit }) {
-      commit("CLEAR_USER_DATA");
+      commit("CLEAR_USER_DATA")
     }
   },
   getters: {
     loggedIn(state) {
-      return !!state.user;
+      return !!state.user
     }
   },
   modules: {}
-});
+})

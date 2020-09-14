@@ -22,7 +22,7 @@ app.get("/dashboard", verifyToken, (req, res) => {
       res.sendStatus(401)
     } else {
       res.json({
-        events: events
+        message: "Youre safe!"
       })
     }
   })
@@ -31,7 +31,7 @@ app.get("/dashboard", verifyToken, (req, res) => {
 app.post("/register", (req, res) => {
   if (req.body) {
     const user = {
-      name: req.body.name,
+      username: req.body.username,
       email: req.body.email,
       password: req.body.password
       // You'll want to encrypt the password in a live app
@@ -51,7 +51,7 @@ app.post("/register", (req, res) => {
     res.json({
       token,
       email: user.email,
-      name: user.name
+      username: user.username
     })
   } else {
     res.sendStatus(401)
@@ -63,7 +63,7 @@ app.post("/login", (req, res) => {
   var userInfo = JSON.parse(userDB)
   if (
     req.body &&
-    req.body.email === userInfo.email &&
+    req.body.username === userInfo.username &&
     req.body.password === userInfo.password
   ) {
     // The secret key should be an environment variable in a live app
@@ -71,7 +71,7 @@ app.post("/login", (req, res) => {
     res.json({
       token,
       email: userInfo.email,
-      name: userInfo.name
+      username: userInfo.username
     })
   } else {
     res.sendStatus(401)
