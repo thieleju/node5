@@ -75,16 +75,9 @@ export default {
           password: this.password
         })
         .then(() => {
-          // this.$router.push({ name: "dashboard" })
+          this.$router.push({ name: "login" })
         })
     }
   }
 }
 </script>
-
-<style lang="css" scoped>
-.backgroundImage {
-  background-image: url("../assets/wallpaper/legacy_small.png");
-  background-size: cover;
-}
-</style>

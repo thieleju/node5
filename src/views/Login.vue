@@ -67,9 +67,9 @@ export default {
 }
 </script>
 
-<style lang="css" scoped>
+<style lang="css">
 .backgroundImage {
-  background-image: url("../assets/wallpaper/legacy_small.png");
+  background-image: url("../assets/wallpaper/legacy_small.jpg");
   background-size: cover;
 }
 </style>

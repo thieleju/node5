@@ -1,28 +1,20 @@
 <template>
   <v-app id="inspire">
     <v-main>
-      <v-container class="fill-height" fluid>
-        <router-link v-if="loggedIn" to="/dashboard">Dashboard</router-link>
-      </v-container>
+      <v-container class="fill-height" fluid> </v-container>
     </v-main>
   </v-app>
 </template>
 
 <script>
-import { authComputed } from "../store/helpers.js"
+import store from "../store"
 
 export default {
-  computed: {
-    ...authComputed
-  },
   created() {
-    if (this.loggedIn) {
+    if (store.getters["isAuthenticated"]) {
       this.$router.push({ name: "dashboard" })
-    }
-  },
-  methods: {
-    logout() {
-      this.$store.dispatch("logout")
+    } else {
+      this.$router.push({ name: "login" })
     }
   }
 }

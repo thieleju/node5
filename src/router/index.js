@@ -1,22 +1,23 @@
 import Vue from "vue"
 import VueRouter from "vue-router"
-import Dashboard from "../views/Dashboard.vue"
 import Login from "../views/Login.vue"
 import Register from "../views/Register.vue"
+import Dashboard from "../views/Dashboard.vue"
 import Startpage from "../views/Startpage.vue"
+
+import store from "../store"
+
+// get secret information from .env
+const { config } = require("dotenv")
+config({ path: __dirname + "/.env" })
 
 Vue.use(VueRouter)
 
 const routes = [
   {
     path: "/",
-    name: "startpage",
+    name: "start",
     component: Startpage
-  },
-  {
-    path: "/dashboard",
-    name: "dashboard",
-    component: Dashboard
   },
   {
     path: "/login",
@@ -27,7 +28,24 @@ const routes = [
     path: "/register",
     name: "register",
     component: Register
-  }
+  },
+  {
+    path: "/dashboard",
+    name: "dashboard",
+    component: Dashboard,
+    meta: {
+      requiresAuth: true
+    }
+  },
+  // {
+  //   path: "/admin",
+  //   name: "admin",
+  //   component: Admin,
+  //   meta: {
+  //     requiresAuth: true,
+  //     is_admin: true
+  //   }
+  // }
   // {
   //   path: "/about",
   //   name: "About",
@@ -37,12 +55,31 @@ const routes = [
   //   component: () =>
   //     import(/* webpackChunkName: "about" */ "../views/About.vue")
   // }
+  {
+    path: "*",
+    redirect: "/"
+  }
 ]
 
 const router = new VueRouter({
   mode: "history",
-  base: process.env.BASE_URL,
+  base: process.env.VUE_APP_ROOT,
   routes
+})
+
+router.beforeEach((to, from, next) => {
+  if (to.matched.some(record => record.meta.requiresAuth)) {
+    // this route requires auth, check if logged in
+    // if not, redirect to login page.
+    const auth = store.getters["isAuthenticated"]
+    if (!auth) {
+      next({ name: "login" })
+    } else {
+      next()
+    }
+  } else {
+    next() // make sure to always call next()!
+  }
 })
 
 export default router

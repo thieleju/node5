@@ -1,5 +1,14 @@
-{
-  "username": "Ryua",
-  "email": "thiele.juli@gmail.com",
-  "password": "123"
-}
+[
+  {
+    "activated": true,
+    "username": "Ryua",
+    "email": "thiele.juli@gmail.com",
+    "password": "123"
+  },
+  {
+    "username": "demo",
+    "email": "demo@node5.de",
+    "password": "node5",
+    "activated": true
+  }
+]

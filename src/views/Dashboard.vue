@@ -3,7 +3,7 @@
     <v-app-bar app dark color="primary">
       <v-toolbar-title>Dashboard</v-toolbar-title>
       <v-spacer></v-spacer>
-      <v-icon>mdi-account</v-icon>
+      <v-icon @click="logout">mdi-logout-variant</v-icon>
     </v-app-bar>
     <v-navigation-drawer app floating>
       <v-list color="primary">
@@ -18,7 +18,7 @@
             <v-icon>mdi-view-dashboard</v-icon>
           </v-list-item-action>
           <v-list-item-content>
-            <v-list-item-title>Dashboard</v-list-item-title>
+            <v-list-item-title>{{ title }}</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
         <v-list-item link>
@@ -53,13 +53,21 @@ export default {
   data() {
     return {
       user: {
-        username: JSON.parse(localStorage.getItem("user")).username,
-        email: JSON.parse(localStorage.getItem("user")).email
-      }
+        username: null,
+        email: null
+      },
+      title: "Dashboard"
     }
   },
   created() {
-    axios.get("//localhost:3000/dashboard").then(({ data }) => {})
+    let user = this.$store.getters.getUser
+    this.user.username = user.username
+    this.user.email = user.email
+  },
+  methods: {
+    logout() {
+      this.$store.dispatch("logout")
+    }
   }
 }
 </script>

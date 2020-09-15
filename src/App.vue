@@ -12,6 +12,7 @@ export default {
     return {}
   },
   created() {
+    // autologin if userdata is still in local Storage
     const userString = localStorage.getItem("user")
     if (userString) {
       const userData = JSON.parse(userString)
