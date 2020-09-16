@@ -16,7 +16,7 @@
                     prepend-icon="mdi-account"
                     type="text"
                     v-model="username"
-                    v-on:keyup.enter="login"
+                    v-on:keyup.enter="validateLogin"
                   ></v-text-field>
 
                   <v-text-field
@@ -25,7 +25,7 @@
                     prepend-icon="mdi-lock"
                     type="password"
                     v-model="password"
-                    v-on:keyup.enter="login"
+                    v-on:keyup.enter="validateLogin"
                   ></v-text-field>
                 </v-form>
               </v-card-text>
@@ -36,7 +36,7 @@
                   >Request Account</v-btn
                 >
                 <v-spacer></v-spacer>
-                <v-btn color="primary" @click="login">Login</v-btn>
+                <v-btn color="primary" @click="validateLogin">Login</v-btn>
               </v-card-actions>
             </v-card>
           </v-col>
@@ -47,7 +47,6 @@
 </template>
 
 <script>
-
 import Swal from "sweetalert2"
 
 export default {
@@ -58,6 +57,13 @@ export default {
     }
   },
   methods: {
+    validateLogin() {
+      if (this.username != "" && this.password != "") {
+        this.login()
+      } else {
+        this.loginFailed()
+      }
+    },
     login() {
       this.$store
         .dispatch("login", {
@@ -65,50 +71,57 @@ export default {
           password: this.password
         })
         .then(() => {
-          // LOGIN SUCCESSFUL
-          let Toast = Swal.mixin({
-          toast: true,
-          position: 'top-end',
-          showConfirmButton: false,
-          timer: 800,
-          timerProgressBar: false,
-            onClose: (toast) => {
-                this.$router.push({ name: "dashboard" })
-            }
-          })
-          Toast.fire({
-              icon: "success", 
-              title: "Siging in ..."
-            })
-        }).catch(error => {
-          // LOGIN FAILED
-          let Toast = Swal.mixin({
-          toast: true,
-          position: 'top-end',
-          showConfirmButton: false,
-          timer: 1000,
-          timerProgressBar: false,
-            // onClose: (toast) => {}
-          })
-          Toast.fire({
-            icon: "error", 
-            title: "Failed to login!"
-          })
+          this.loginSuccessful()
         })
+        .catch(error => {
+          this.loginFailed()
+        })
+    },
+    loginSuccessful() {
+      let Toast = Swal.mixin({
+        toast: true,
+        position: "top",
+        showConfirmButton: false,
+        padding: "1.3rem",
+        timer: 800,
+        timerProgressBar: false,
+        onClose: toast => {
+          this.$router.push({ name: "dashboard" })
+        }
+      })
+      Toast.fire({
+        icon: "success",
+        title: "Siging in ..."
+      })
+    },
+    loginFailed() {
+      let Toast = Swal.mixin({
+        toast: true,
+        position: "top",
+        padding: "1.3rem",
+        showConfirmButton: false,
+        timer: 1200,
+        timerProgressBar: false
+        // onClose: (toast) => {}
+      })
+      Toast.fire({
+        icon: "error",
+        title: "Failed to login!"
+      })
     }
   }
 }
 </script>
 
 <style lang="scss">
-
-
 .backgroundImage {
   background-image: url("../assets/wallpaper/legacy_small.jpg");
   background-size: cover;
 }
 
 body {
-  font-family: "Open Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", Helvetica, Arial, sans-serif; 
+  font-family: "Open Sans", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", Helvetica, Arial,
+    sans-serif;
 }
 </style>

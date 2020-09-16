@@ -16,7 +16,7 @@
                     prepend-icon="mdi-account"
                     type="text"
                     v-model="username"
-                    v-on:keyup.enter="register"
+                    v-on:keyup.enter="validateRegister"
                   ></v-text-field>
 
                   <v-text-field
@@ -25,7 +25,7 @@
                     prepend-icon="mdi-email"
                     type="email"
                     v-model="email"
-                    v-on:keyup.enter="register"
+                    v-on:keyup.enter="validateRegister"
                   ></v-text-field>
                   <v-text-field
                     label="Password"
@@ -33,7 +33,7 @@
                     prepend-icon="mdi-lock"
                     type="password"
                     v-model="password"
-                    v-on:keyup.enter="register"
+                    v-on:keyup.enter="validateRegister"
                   ></v-text-field>
                   <v-text-field
                     label="Confirm Password"
@@ -41,7 +41,7 @@
                     prepend-icon="mdi-lock"
                     type="password"
                     v-model="password2"
-                    v-on:keyup.enter="register"
+                    v-on:keyup.enter="validateRegister"
                   ></v-text-field>
                 </v-form>
               </v-card-text>
@@ -50,7 +50,9 @@
                   >Switch to Login</v-btn
                 >
                 <v-spacer></v-spacer>
-                <v-btn color="primary" @click="register">Send Request</v-btn>
+                <v-btn color="primary" @click="validateRegister"
+                  >Send Request</v-btn
+                >
               </v-card-actions>
             </v-card>
           </v-col>
@@ -61,6 +63,8 @@
 </template>
 
 <script>
+import Swal from "sweetalert2"
+
 export default {
   data() {
     return {
@@ -71,16 +75,64 @@ export default {
     }
   },
   methods: {
+    validateRegister() {
+      // validate user input
+      if (
+        this.username != "" &&
+        this.email != "" &&
+        this.password != "" &&
+        this.password == this.password2
+      ) {
+        this.register()
+      } else {
+        this.accountRequestFailed()
+      }
+    },
     register() {
-        this.$store
+      this.$store
         .dispatch("register", {
           username: this.username,
           email: this.email,
           password: this.password
         })
         .then(() => {
-          this.$router.push({ name: "login" })
+          this.accountRequestSuccessful()
         })
+        .catch(error => {
+          this.accountRequestFailed()
+        })
+    },
+    accountRequestSuccessful() {
+      let Toast = Swal.mixin({
+        toast: true,
+        position: "top",
+        showConfirmButton: false,
+        padding: "1.3rem",
+        timer: 2000,
+        timerProgressBar: false,
+        onClose: toast => {
+          this.$router.push({ name: "login" })
+        }
+      })
+      Toast.fire({
+        icon: "success",
+        title: "Account successfully requested"
+      })
+    },
+    accountRequestFailed() {
+      let Toast = Swal.mixin({
+        toast: true,
+        position: "top",
+        padding: "1.3rem",
+        showConfirmButton: false,
+        timer: 1200,
+        timerProgressBar: false
+        // onClose: (toast) => {}
+      })
+      Toast.fire({
+        icon: "error",
+        title: "Failed to send request!"
+      })
     }
   }
 }

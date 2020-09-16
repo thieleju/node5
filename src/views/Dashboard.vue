@@ -1,11 +1,14 @@
 <template>
   <v-app id="inspire">
     <v-app-bar app dark color="primary">
+      <v-btn icon @click.stop="drawer = !drawer">
+        <v-icon @click="toggleChevron">{{ chevron }}</v-icon>
+      </v-btn>
       <v-toolbar-title>Dashboard</v-toolbar-title>
       <v-spacer></v-spacer>
       <v-icon @click="logout">mdi-logout-variant</v-icon>
     </v-app-bar>
-    <v-navigation-drawer app floating>
+    <v-navigation-drawer app floating v-model="drawer">
       <v-list color="primary">
         <v-list-item>
           <v-icon>mdi-account</v-icon>
@@ -56,6 +59,8 @@ export default {
         username: null,
         email: null
       },
+      drawer: true,
+      chevron: "mdi-chevron-left",
       title: "Dashboard"
     }
   },
@@ -66,8 +71,14 @@ export default {
   },
   methods: {
     logout() {
-      console.log("logout")
       this.$store.dispatch("logout")
+    },
+    toggleChevron() {
+      if (this.chevron === "mdi-chevron-right") {
+        this.chevron = "mdi-chevron-left"
+      } else if (this.chevron === "mdi-chevron-left") {
+        this.chevron = "mdi-chevron-right"
+      }
     }
   }
 }

@@ -45,20 +45,34 @@ app.post("/api/register", (req, res) => {
     // read users data
     var userDB = fs.readFileSync("./db/user.json")
     var userInfo = JSON.parse(userDB)
+
+    var userAlreadyExits = false
+    userInfo.forEach(el => {
+      if (el.username == user.username || el.email == user.email) {
+        userAlreadyExits = true
+      }
+    })
+
+    // user already exits -> exit
+    if (userAlreadyExits) {
+      res.json({
+        status: "error",
+        message: "Account " + user.username + " already exits"
+      })
+    }
+
     // add to array
     userInfo.push(user)
     // convert and write to file
     var data = JSON.stringify(userInfo, null, 2)
 
     fs.writeFile("db/user.json", data, err => {
-      if (err) {
-        console.log(err)
-      } else {
-        res.json({
-          message: "Account " + user.username + " has been requested!"
-        })
-        console.log("Account for " + user.username + " has been requested!")
-      }
+      if (err) res.json(err)
+
+      res.json({
+        status: "success",
+        message: "Account " + user.username + " has been requested!"
+      })
     })
 
     // const token = jwt.sign({ user }, process.env.VUE_APP_SECRET_KEY)

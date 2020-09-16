@@ -13,10 +13,10 @@ config({ path: __dirname + "/.env" })
 let rootUrl = null
 if (process.env.VUE_APP_NODE_ENV === "production") {
   rootUrl =
-    process.env.VUE_APP_ROOT + ":" + process.env.VUE_APP_PRO_SERVERPORT
+    process.env.VUE_APP_PRO_API + ":" + process.env.VUE_APP_PRO_SERVERPORT
 } else {
   rootUrl =
-    process.env.VUE_APP_ROOT + ":" + process.env.VUE_APP_DEV_SERVERPORT
+    process.env.VUE_APP_DEV_API + ":" + process.env.VUE_APP_DEV_SERVERPORT
 }
 
 export default new Vuex.Store({
@@ -34,17 +34,19 @@ export default new Vuex.Store({
     CLEAR_USER_DATA() {
       localStorage.removeItem("user")
       location.reload()
-    },
-    REQUEST_USER(state, data) {
-      console.log(data)
     }
+    // REQUEST_USER(state, data) {
+    //   console.log(data)
+    // }
   },
   actions: {
     register({ commit }, credentials) {
       return axios
         .post(rootUrl + "/api/register", credentials)
         .then(({ data }) => {
-          commit("REQUEST_USER", data)
+          // TODO Error handling
+          // if(data.status && data.status == "error") {
+          // }
         })
     },
     login({ commit }, credentials) {
