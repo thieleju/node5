@@ -13,10 +13,10 @@ config({ path: __dirname + "/.env" })
 let rootUrl = null
 if (process.env.VUE_APP_NODE_ENV === "production") {
   rootUrl =
-    process.env.VUE_APP_PRO_API + ":" + process.env.VUE_APP_PRO_SERVERPORT
+    process.env.VUE_APP_ROOT + ":" + process.env.VUE_APP_PRO_SERVERPORT
 } else {
   rootUrl =
-    process.env.VUE_APP_DEV_API + ":" + process.env.VUE_APP_DEV_SERVERPORT
+    process.env.VUE_APP_ROOT + ":" + process.env.VUE_APP_DEV_SERVERPORT
 }
 
 export default new Vuex.Store({

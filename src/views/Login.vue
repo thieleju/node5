@@ -16,6 +16,7 @@
                     prepend-icon="mdi-account"
                     type="text"
                     v-model="username"
+                    v-on:keyup.enter="login"
                   ></v-text-field>
 
                   <v-text-field
@@ -24,6 +25,7 @@
                     prepend-icon="mdi-lock"
                     type="password"
                     v-model="password"
+                    v-on:keyup.enter="login"
                   ></v-text-field>
                 </v-form>
               </v-card-text>
@@ -45,6 +47,9 @@
 </template>
 
 <script>
+
+import Swal from "sweetalert2"
+
 export default {
   data() {
     return {
@@ -60,16 +65,50 @@ export default {
           password: this.password
         })
         .then(() => {
-          this.$router.push({ name: "dashboard" })
+          // LOGIN SUCCESSFUL
+          let Toast = Swal.mixin({
+          toast: true,
+          position: 'top-end',
+          showConfirmButton: false,
+          timer: 800,
+          timerProgressBar: false,
+            onClose: (toast) => {
+                this.$router.push({ name: "dashboard" })
+            }
+          })
+          Toast.fire({
+              icon: "success", 
+              title: "Siging in ..."
+            })
+        }).catch(error => {
+          // LOGIN FAILED
+          let Toast = Swal.mixin({
+          toast: true,
+          position: 'top-end',
+          showConfirmButton: false,
+          timer: 1000,
+          timerProgressBar: false,
+            // onClose: (toast) => {}
+          })
+          Toast.fire({
+            icon: "error", 
+            title: "Failed to login!"
+          })
         })
     }
   }
 }
 </script>
 
-<style lang="css">
+<style lang="scss">
+
+
 .backgroundImage {
   background-image: url("../assets/wallpaper/legacy_small.jpg");
   background-size: cover;
+}
+
+body {
+  font-family: "Open Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", Helvetica, Arial, sans-serif; 
 }
 </style>

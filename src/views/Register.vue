@@ -16,6 +16,7 @@
                     prepend-icon="mdi-account"
                     type="text"
                     v-model="username"
+                    v-on:keyup.enter="register"
                   ></v-text-field>
 
                   <v-text-field
@@ -24,6 +25,7 @@
                     prepend-icon="mdi-email"
                     type="email"
                     v-model="email"
+                    v-on:keyup.enter="register"
                   ></v-text-field>
                   <v-text-field
                     label="Password"
@@ -31,6 +33,7 @@
                     prepend-icon="mdi-lock"
                     type="password"
                     v-model="password"
+                    v-on:keyup.enter="register"
                   ></v-text-field>
                   <v-text-field
                     label="Confirm Password"
@@ -38,6 +41,7 @@
                     prepend-icon="mdi-lock"
                     type="password"
                     v-model="password2"
+                    v-on:keyup.enter="register"
                   ></v-text-field>
                 </v-form>
               </v-card-text>
@@ -68,7 +72,7 @@ export default {
   },
   methods: {
     register() {
-      this.$store
+        this.$store
         .dispatch("register", {
           username: this.username,
           email: this.email,
