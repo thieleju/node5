@@ -6,7 +6,7 @@
           <v-col cols="12" sm="8" md="4">
             <v-card class="elevation-12" color="background">
               <v-toolbar color="primary" dark>
-                <v-toolbar-title>Login to your Account</v-toolbar-title>
+                <v-toolbar-title>Login to your Node 5 account</v-toolbar-title>
               </v-toolbar>
               <v-card-text>
                 <v-form>
@@ -78,7 +78,7 @@ export default {
         })
     },
     loginSuccessful() {
-      let Toast = Swal.mixin({
+      Swal.mixin({
         toast: true,
         position: "top",
         showConfirmButton: false,
@@ -88,14 +88,13 @@ export default {
         onClose: toast => {
           this.$router.push({ name: "dashboard" })
         }
-      })
-      Toast.fire({
+      }).fire({
         icon: "success",
         title: "Siging in ..."
       })
     },
     loginFailed() {
-      let Toast = Swal.mixin({
+      Swal.mixin({
         toast: true,
         position: "top",
         padding: "1.3rem",
@@ -103,8 +102,7 @@ export default {
         timer: 1200,
         timerProgressBar: false
         // onClose: (toast) => {}
-      })
-      Toast.fire({
+      }).fire({
         icon: "error",
         title: "Failed to login!"
       })

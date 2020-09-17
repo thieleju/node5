@@ -53,6 +53,7 @@ export default new Vuex.Store({
       return axios
         .post(rootUrl + "/api/login", credentials)
         .then(({ data }) => {
+          console.log(data)
           commit("SET_USER_DATA", data)
         })
     },
@@ -67,6 +68,17 @@ export default new Vuex.Store({
     },
     getUser(state) {
       return state.user
+    },
+    getRootUrl() {
+      let rootUrl = null
+      if (process.env.VUE_APP_NODE_ENV === "production") {
+        rootUrl =
+          process.env.VUE_APP_PRO_API + ":" + process.env.VUE_APP_PRO_SERVERPORT
+      } else {
+        rootUrl =
+          process.env.VUE_APP_DEV_API + ":" + process.env.VUE_APP_DEV_SERVERPORT
+      }
+      return rootUrl
     }
   },
   modules: {}

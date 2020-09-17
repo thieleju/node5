@@ -2,7 +2,7 @@
   <v-app id="inspire">
     <v-app-bar app dark color="primary">
       <v-btn icon @click.stop="drawer = !drawer">
-        <v-icon @click="toggleChevron">{{ chevron }}</v-icon>
+        <v-icon>{{ chevron }}</v-icon>
       </v-btn>
       <v-toolbar-title>Dashboard</v-toolbar-title>
       <v-spacer></v-spacer>
@@ -42,9 +42,6 @@
           </v-col>
         </v-row>
       </v-container>
-      <v-footer app color="grey darken-4" class="py-1">
-        <span class="mr-auto overline">Node 5 &copy;2020</span>
-      </v-footer>
     </v-main>
   </v-app>
 </template>
@@ -73,11 +70,20 @@ export default {
     logout() {
       this.$store.dispatch("logout")
     },
-    toggleChevron() {
-      if (this.chevron === "mdi-chevron-right") {
+    setChevron(state) {
+      if (state === "left") {
         this.chevron = "mdi-chevron-left"
-      } else if (this.chevron === "mdi-chevron-left") {
+      } else if (state === "right") {
         this.chevron = "mdi-chevron-right"
+      }
+    }
+  },
+  watch: {
+    drawer: function(state) {
+      if (state) {
+        this.setChevron("left")
+      } else {
+        this.setChevron("right")
       }
     }
   }

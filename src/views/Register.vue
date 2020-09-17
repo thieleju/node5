@@ -103,7 +103,7 @@ export default {
         })
     },
     accountRequestSuccessful() {
-      let Toast = Swal.mixin({
+      Swal.mixin({
         toast: true,
         position: "top",
         showConfirmButton: false,
@@ -113,14 +113,13 @@ export default {
         onClose: toast => {
           this.$router.push({ name: "login" })
         }
-      })
-      Toast.fire({
+      }).fire({
         icon: "success",
         title: "Account successfully requested"
       })
     },
     accountRequestFailed() {
-      let Toast = Swal.mixin({
+      Swal.mixin({
         toast: true,
         position: "top",
         padding: "1.3rem",
@@ -128,8 +127,7 @@ export default {
         timer: 1200,
         timerProgressBar: false
         // onClose: (toast) => {}
-      })
-      Toast.fire({
+      }).fire({
         icon: "error",
         title: "Failed to send request!"
       })

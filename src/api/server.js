@@ -4,23 +4,28 @@ const cors = require("cors")
 const bodyParser = require("body-parser")
 const fs = require("fs")
 const https = require("https")
+const app = express()
 
 // get secret information from .env
 const { config } = require("dotenv")
 config({ path: __dirname + "../../../.env" })
 
-const app = express()
+// helper functions
+var hf = require("./helpers")
 
 app.use(cors())
 app.use(bodyParser.json())
 
 app.get("/api/", (req, res) => {
+  // var userArray = JSON.parse(fs.readFileSync("./db/user.json"))
+  // const pwd = crypto.SHA256("asdf")
+  // var msg = crypto.enc.Base64.stringify(pwd)
   res.json({
-    message: "Welcome to the API."
+    message: "Go away!"
   })
 })
 
-app.get("/api/dashboard", verifyToken, (req, res) => {
+app.get("/api/dashboard", hf.verifyToken, (req, res) => {
   jwt.verify(req.token, "the_secret_key", err => {
     if (err) {
       res.sendStatus(401)
@@ -32,102 +37,53 @@ app.get("/api/dashboard", verifyToken, (req, res) => {
   })
 })
 
+app.get("/api/dsgvo.html", (req, res) => {
+  try {
+    var dsgvo = fs.readFileSync("./src/assets/dsgvo.html")
+    res.send(dsgvo)
+  } catch (error) {
+    res.status(400)
+    res.json(error)
+  }
+})
+
 app.post("/api/register", (req, res) => {
-  if (req.body) {
-    const user = {
-      username: req.body.username,
-      email: req.body.email,
-      password: req.body.password,
-      activated: false
-      // You'll want to encrypt the password in a live app
-    }
-
-    // read users data
-    var userDB = fs.readFileSync("./db/user.json")
-    var userInfo = JSON.parse(userDB)
-
-    var userAlreadyExits = false
-    userInfo.forEach(el => {
-      if (el.username == user.username || el.email == user.email) {
-        userAlreadyExits = true
-      }
-    })
-
-    // user already exits -> exit
-    if (userAlreadyExits) {
-      res.json({
-        status: "error",
-        message: "Account " + user.username + " already exits"
-      })
-    }
-
-    // add to array
-    userInfo.push(user)
-    // convert and write to file
-    var data = JSON.stringify(userInfo, null, 2)
-
-    fs.writeFile("db/user.json", data, err => {
-      if (err) res.json(err)
-
+  hf.doRegister(req, res)
+    .then(data => {
+      res.status(200)
       res.json({
         status: "success",
-        message: "Account " + user.username + " has been requested!"
+        message: data
       })
     })
-
-    // const token = jwt.sign({ user }, process.env.VUE_APP_SECRET_KEY)
-    // res.json({
-    //   token,
-    //   email: user.email,
-    //   username: user.username
-    // })
-  } else {
-    res.sendStatus(401)
-  }
+    .catch(err => {
+      res.status(401)
+      res.json({
+        status: "failed",
+        message: err
+      })
+    })
 })
 
 app.post("/api/login", (req, res) => {
-  var userDB = fs.readFileSync("./db/user.json")
-  var userInfo = JSON.parse(userDB)
-
-  var foundSomeone = false
-
-  if (req.body) {
-    userInfo.forEach(user => {
-      if (
-        user.username === req.body.username &&
-        user.password === req.body.password &&
-        user.activated
-      ) {
-        foundSomeone = true
-        const token = jwt.sign({ userInfo }, process.env.VUE_APP_SECRET_KEY)
-        res.json({
-          token,
-          email: user.email,
-          username: user.username
-        })
-      }
+  hf.doLogin(req, res)
+    .then(token => {
+      res.status(200)
+      res.json({
+        token,
+        email: req.body.email,
+        username: req.body.username,
+        message: "Login Successful"
+      })
     })
-    if (!foundSomeone) {
-      res.sendStatus(401)
-    }
-  } else {
-    res.sendStatus(401)
-  }
+    .catch(error => {
+      res.status(401)
+      res.json({
+        status: "error",
+        message: error
+      })
+    })
 })
-
-function verifyToken(req, res, next) {
-  const bearerHeader = req.headers["authorization"]
-
-  if (typeof bearerHeader !== "undefined") {
-    const bearer = bearerHeader.split(" ")
-    const bearerToken = bearer[1]
-    req.token = bearerToken
-    next()
-  } else {
-    res.sendStatus(401)
-  }
-}
 
 let serverPort = null
 
