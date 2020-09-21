@@ -72,8 +72,7 @@ app.post("/api/login", (req, res) => {
       res.json({
         token,
         email: req.body.email,
-        username: req.body.username,
-        message: "Login Successful"
+        username: req.body.username
       })
     })
     .catch(error => {
