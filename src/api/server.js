@@ -94,11 +94,13 @@ if (process.env.VUE_APP_NODE_ENV === "production") {
     .createServer(credentials, app)
     .listen(process.env.VUE_APP_PRO_SERVERPORT, () => {
       console.log(
-        "Server started on port " + process.env.VUE_APP_PRO_SERVERPORT
+        "HTTPS: Server started on port " + process.env.VUE_APP_PRO_SERVERPORT
       )
     })
 } else {
-  app.listen((serverPort = process.env.VUE_APP_DEV_SERVERPORT), () => {
-    console.log("Server started on port " + process.env.VUE_APP_DEV_SERVERPORT)
+  app.listen(process.env.VUE_APP_DEV_SERVERPORT, () => {
+    console.log(
+      "HTTP: Server started on port " + process.env.VUE_APP_DEV_SERVERPORT
+    )
   })
 }
