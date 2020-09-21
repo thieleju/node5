@@ -1,10 +1,15 @@
-const express = require("express")
 const jwt = require("jsonwebtoken")
 const cors = require("cors")
 const bodyParser = require("body-parser")
 const fs = require("fs")
 const https = require("https")
+const express = require("express")
 const app = express()
+
+const credentials = {
+  key: fs.readFileSync("cert/privkey.pem", "utf8"),
+  cert: fs.readFileSync("cert/fullchain.pem", "utf8")
+}
 
 // get secret information from .env
 const { config } = require("dotenv")
@@ -84,14 +89,16 @@ app.post("/api/login", (req, res) => {
     })
 })
 
-let serverPort = null
-
 if (process.env.VUE_APP_NODE_ENV === "production") {
-  serverPort = process.env.VUE_APP_PRO_SERVERPORT
+  https
+    .createServer(credentials, app)
+    .listen(process.env.VUE_APP_PRO_SERVERPORT, () => {
+      console.log(
+        "Server started on port " + process.env.VUE_APP_PRO_SERVERPORT
+      )
+    })
 } else {
-  serverPort = process.env.VUE_APP_DEV_SERVERPORT
+  app.listen((serverPort = process.env.VUE_APP_DEV_SERVERPORT), () => {
+    console.log("Server started on port " + process.env.VUE_APP_DEV_SERVERPORT)
+  })
 }
-
-app.listen(serverPort, () => {
-  console.log("Server started on port " + serverPort)
-})
