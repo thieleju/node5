@@ -4,7 +4,7 @@
       <v-btn icon @click.stop="drawer = !drawer">
         <v-icon>{{ chevron }}</v-icon>
       </v-btn>
-      <v-toolbar-title>Dashboard</v-toolbar-title>
+      <v-toolbar-title>{{ title }}</v-toolbar-title>
       <v-spacer></v-spacer>
       <v-icon @click="logout">mdi-logout-variant</v-icon>
     </v-app-bar>
@@ -21,7 +21,7 @@
             <v-icon>mdi-view-dashboard</v-icon>
           </v-list-item-action>
           <v-list-item-content>
-            <v-list-item-title>{{ title }}</v-list-item-title>
+            <v-list-item-title>Dashboard</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
         <v-list-item link>
@@ -38,7 +38,9 @@
       <v-container class="px-4 py-0 fill-height" fluid>
         <v-row class="fill-height">
           <v-col>
-            <transition name="fade"> </transition>
+            <transition name="fade"> 
+              
+            </transition>
           </v-col>
         </v-row>
       </v-container>

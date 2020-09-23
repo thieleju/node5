@@ -35,9 +35,6 @@ export default new Vuex.Store({
       localStorage.removeItem("user")
       location.reload()
     }
-    // REQUEST_USER(state, data) {
-    //   console.log(data)
-    // }
   },
   actions: {
     register({ commit }, credentials) {
@@ -53,8 +50,9 @@ export default new Vuex.Store({
       return axios
         .post(rootUrl + "/api/login", credentials)
         .then(({ data }) => {
-          console.log(data)
+          // console.log(data)
           commit("SET_USER_DATA", data)
+          return data
         })
     },
     logout({ commit }) {

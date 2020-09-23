@@ -9,7 +9,7 @@ config({ path: __dirname + "/.env" })
 module.exports = {
   doRegister(req, res) {
     return new Promise((resolve, reject) => {
-      if (!req.body) reject("Failed to receive data")
+      if (!req.body) reject({message:"Failed to receive data"})
       // user array
       const obj = crypto.SHA256(req.body.password)
       const pwd = crypto.enc.Base64.stringify(obj)
@@ -27,7 +27,7 @@ module.exports = {
       // reject promise if user already exits
       userArray.forEach(el => {
         if (el.username == user.username || el.email == user.email) {
-          reject("User already exits!")
+          reject({message:"User already exits!"})
         }
       })
       // add to array
@@ -36,15 +36,15 @@ module.exports = {
       var data = JSON.stringify(userArray, null, 2)
       // write to file
       fs.writeFile("db/user.json", data, err => {
-        if (err) reject("Failed to write to file")
+        if (err) reject({message:"Failed to write to file"})
         // resolve promise
-        resolve("Account " + user.username + " has been requested!")
+        resolve({message:"Account " + user.username + " requested"})
       })
     })
   },
   doLogin(req, res) {
     return new Promise((resolve, reject) => {
-      if (!req.body) reject("Failed to receive data")
+      if (!req.body) reject({message:"Failed to receive data"})
       // user array
       const obj = crypto.SHA256(req.body.password)
       const pwd = crypto.enc.Base64.stringify(obj)
@@ -63,13 +63,13 @@ module.exports = {
               { userArray },
               process.env.VUE_APP_SECRET_KEY
             )
-            resolve(token)
+            resolve({message:"Signing in ...",token})
           } else {
-            reject("Account not activated")
+            reject({message:"Account not activated"})
           }
         }
       })
-      reject("User not found or wrong credentials")
+      reject({message:"User not found or wrong credentials"})
     })
   },
   verifyToken(req, res, next) {

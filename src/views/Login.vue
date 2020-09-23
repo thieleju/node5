@@ -56,12 +56,17 @@ export default {
       password: ""
     }
   },
+  created() {
+    if (this.$store.getters["isAuthenticated"]) {
+      this.$router.push({ name: "dashboard" })
+    } 
+  },
   methods: {
     validateLogin() {
       if (this.username != "" && this.password != "") {
         this.login()
       } else {
-        this.loginFailed()
+        this.loginFailed("Empty username or password!")
       }
     },
     login() {
@@ -70,14 +75,14 @@ export default {
           username: this.username,
           password: this.password
         })
-        .then(() => {
-          this.loginSuccessful()
+        .then(data => {
+          this.loginSuccessful(data.message)
         })
         .catch(error => {
-          this.loginFailed()
+          this.loginFailed(error.message)
         })
     },
-    loginSuccessful() {
+    loginSuccessful(message) {
       Swal.mixin({
         toast: true,
         position: "top",
@@ -90,10 +95,10 @@ export default {
         }
       }).fire({
         icon: "success",
-        title: "Siging in ..."
+        title: message 
       })
     },
-    loginFailed() {
+    loginFailed(message) {
       Swal.mixin({
         toast: true,
         position: "top",
@@ -104,7 +109,7 @@ export default {
         // onClose: (toast) => {}
       }).fire({
         icon: "error",
-        title: "Failed to login!"
+        title: message
       })
     }
   }
