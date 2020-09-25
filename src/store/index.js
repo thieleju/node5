@@ -10,13 +10,12 @@ Vue.use(Vuex)
 const { config } = require("dotenv")
 config({ path: __dirname + "/.env" })
 
-let rootUrl = null
+let rootUrl = "http://" + window.location.href.split("/")[2].split(":")[0] + ":"
+
 if (process.env.VUE_APP_NODE_ENV === "production") {
-  rootUrl =
-    process.env.VUE_APP_PRO_API + ":" + process.env.VUE_APP_PRO_SERVERPORT
+  rootUrl += process.env.VUE_APP_PRO_SERVERPORT
 } else {
-  rootUrl =
-    process.env.VUE_APP_DEV_API + ":" + process.env.VUE_APP_DEV_SERVERPORT
+  rootUrl += process.env.VUE_APP_DEV_SERVERPORT
 }
 
 export default new Vuex.Store({
@@ -68,15 +67,14 @@ export default new Vuex.Store({
       return state.user
     },
     getRootUrl() {
-      let rootUrl = null
+      let rootUrl =
+        "http://" + window.location.href.split("/")[2].split(":")[0] + ":"
+
       if (process.env.VUE_APP_NODE_ENV === "production") {
-        rootUrl =
-          process.env.VUE_APP_PRO_API + ":" + process.env.VUE_APP_PRO_SERVERPORT
+        rootUrl += process.env.VUE_APP_PRO_SERVERPORT
       } else {
-        rootUrl =
-          process.env.VUE_APP_DEV_API + ":" + process.env.VUE_APP_DEV_SERVERPORT
+        rootUrl += process.env.VUE_APP_DEV_SERVERPORT
       }
-      return rootUrl
     }
   },
   modules: {}
