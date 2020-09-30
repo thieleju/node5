@@ -75,6 +75,7 @@ export default new Vuex.Store({
       } else {
         rootUrl += process.env.VUE_APP_DEV_SERVERPORT
       }
+      return rootUrl;
     }
   },
   modules: {}

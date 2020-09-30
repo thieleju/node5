@@ -25,8 +25,18 @@ app.get("/api/", (req, res) => {
   })
 })
 
+app.get("/api/apps", hf.verifyToken, (req, res) => {
+  jwt.verify(req.token, process.env.VUE_APP_SECRET_KEY, err => {
+    if(err) {
+      res.json(err)
+    } else {
+      res.json({apps:fs.readFileSync("./db/apps.json")})
+    }
+  })
+})
+
 app.get("/api/dashboard", hf.verifyToken, (req, res) => {
-  jwt.verify(req.token, "the_secret_key", err => {
+  jwt.verify(req.token, process.env.VUE_APP_SECRET_KEY, err => {
     if (err) {
       res.sendStatus(401)
     } else {
@@ -99,3 +109,5 @@ if (process.env.VUE_APP_NODE_ENV === "production") {
     )
   })
 }
+
+//DAITdZsmQK3rnwThTlJj45Ycnblvh5bX4SAdxHnntk9rhB5PhvkCx6h6S0uwGU4B4TIvJp94pZoeV1cvm3LQFMNLQ6FomAkHoqZzRUCbDiJvKK2B5HeFUrGrhwtxwUDyg12DovkANDpxnnMtIfbk3UxSUo8fQt6ohoRxlufBx25I3bFi5BUQXeUNWRu4t6MtvXOpr7E1TJyo27uDpCIYTmJJNSBUAZKVJVjb8Cw9pdw4QGz5X5mWhsDjyboPqMMIBAPMNTbJtWoVtwMmXb7Ks8CO2BaOvSGQngpe1BH4WRxz9bLAdkkeMCV2QP9Lsbe2h6YYHjedAVcsazyEIFlBgvIWPdU83RpgdzhDbM105M5X8NUdo90ldWr6I6rUhbGcRvPREfuRXlphoKqkQp5oPcKUina67tdyj3bFHHdRCKBx7emMCBB9J8Ra32RpRijJ40r2sdF6up7316PgTObqSp46BTZwcZhzQUEJYcD8nPacrOWKUC66zhcCYl2DJa8JyhwwnUIBfmJixhaRWVm

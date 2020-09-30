@@ -58,15 +58,25 @@ export default {
         username: null,
         email: null
       },
+      apps: null,
       drawer: true,
       chevron: "mdi-chevron-left",
       title: "Dashboard"
     }
   },
   created() {
+    // init user
     let user = this.$store.getters.getUser
     this.user.username = user.username
     this.user.email = user.email
+
+    // init apps
+    axios
+      .get(this.$store.getters.getRootUrl + "/api/apps")
+      .then(data => {
+        this.apps = data.apps
+        console.log(this.apps)
+    })
   },
   methods: {
     logout() {

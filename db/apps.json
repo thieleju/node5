@@ -1,5 +1,7 @@
 [
     {
-        
+        "tradingbots": {
+            "currencies": ["EUR","BTC"]
+        }
     }
 ]

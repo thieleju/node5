@@ -33,6 +33,8 @@ export default {
   methods: {
     openDSGVO() {
       if (!this.dsgvo) {
+        console.log(this.$store.getters.getRootUrl)
+        
         axios
           .get(this.$store.getters.getRootUrl + "/api/dsgvo.html")
           .then(data => {
