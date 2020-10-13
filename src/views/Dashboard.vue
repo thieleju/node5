@@ -38,9 +38,7 @@
       <v-container class="px-4 py-0 fill-height" fluid>
         <v-row class="fill-height">
           <v-col>
-            <transition name="fade"> 
-              
-            </transition>
+            <transition name="fade"> </transition>
           </v-col>
         </v-row>
       </v-container>
@@ -71,11 +69,9 @@ export default {
     this.user.email = user.email
 
     // init apps
-    axios
-      .get(this.$store.getters.getRootUrl + "/api/apps")
-      .then(data => {
-        this.apps = data.apps
-        console.log(this.apps)
+    axios.get(this.$store.getters.getAPIUrl + "/apps").then(data => {
+      this.apps = data.apps
+      console.log(this.apps)
     })
   },
   methods: {

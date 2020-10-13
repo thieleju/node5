@@ -19,35 +19,20 @@ export default {
       dsgvo: null
     }
   },
-  created() {
-    // axios.interceptors.response.use(
-    //   response => response,
-    //   error => {
-    //     if (error.response.status === 401) {
-    //       // this.$store.dispatch("logout")
-    //     }
-    //     return Promise.reject(error)
-    //   }
-    // )
-  },
+  created() {},
   methods: {
     openDSGVO() {
       if (!this.dsgvo) {
-        console.log(this.$store.getters.getRootUrl)
-        
-        axios
-          .get(this.$store.getters.getRootUrl + "/api/dsgvo.html")
-          .then(data => {
-            this.dsgvo = data.data
-            this.showSwal(data.data)
-          })
+        axios.get(this.$store.getters.getAPIUrl + "/dsgvo").then(data => {
+          this.dsgvo = data.data
+          this.showSwal(data.data)
+        })
       } else {
         this.showSwal(this.dsgvo)
       }
     },
     showSwal(data) {
       Swal.fire({
-        // title: "<strong>Datenschutzerklärung</strong>",
         width: 800,
         html: data,
         showCloseButton: true,

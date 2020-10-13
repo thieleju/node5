@@ -10,12 +10,12 @@ Vue.use(Vuex)
 const { config } = require("dotenv")
 config({ path: __dirname + "/.env" })
 
-let rootUrl = "http://" + window.location.href.split("/")[2].split(":")[0] + ":"
-
-if (process.env.VUE_APP_NODE_ENV === "production") {
-  rootUrl += process.env.VUE_APP_PRO_SERVERPORT
+// set api URL
+let apiURL = ""
+if (process.env.VUE_APP_NODE_ENV == "production") {
+  apiURL = process.env.VUE_APP_PRO_API
 } else {
-  rootUrl += process.env.VUE_APP_DEV_SERVERPORT
+  apiURL = process.env.VUE_APP_DEV_API + ":" + process.env.VUE_APP_SERVERPORT
 }
 
 export default new Vuex.Store({
@@ -37,22 +37,14 @@ export default new Vuex.Store({
   },
   actions: {
     register({ commit }, credentials) {
-      return axios
-        .post(rootUrl + "/api/register", credentials)
-        .then(({ data }) => {
-          // TODO Error handling
-          // if(data.status && data.status == "error") {
-          // }
-        })
+      return axios.post(apiURL + "/register", credentials).then({ data })
     },
     login({ commit }, credentials) {
-      return axios
-        .post(rootUrl + "/api/login", credentials)
-        .then(({ data }) => {
-          // console.log(data)
-          commit("SET_USER_DATA", data)
-          return data
-        })
+      return axios.post(apiURL + "/login", credentials).then(({ data }) => {
+        // console.log(data)
+        commit("SET_USER_DATA", data)
+        return data
+      })
     },
     logout({ commit }) {
       commit("CLEAR_USER_DATA")
@@ -66,16 +58,14 @@ export default new Vuex.Store({
     getUser(state) {
       return state.user
     },
-    getRootUrl() {
-      let rootUrl =
-        "http://" + window.location.href.split("/")[2].split(":")[0] + ":"
-
-      if (process.env.VUE_APP_NODE_ENV === "production") {
-        rootUrl += process.env.VUE_APP_PRO_SERVERPORT
+    getAPIUrl() {
+      if (process.env.VUE_APP_NODE_ENV == "production") {
+        return process.env.VUE_APP_PRO_API
       } else {
-        rootUrl += process.env.VUE_APP_DEV_SERVERPORT
+        return (
+          process.env.VUE_APP_DEV_API + ":" + process.env.VUE_APP_SERVERPORT
+        )
       }
-      return rootUrl;
     }
   },
   modules: {}
