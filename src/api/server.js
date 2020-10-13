@@ -52,6 +52,15 @@ app.get("/dsgvo", (req, res) => {
   }
 })
 
+app.get("/favicon.ico", (req, res) => {
+  try {
+    var ico = fs.readFileSync("./public/favicon.ico")
+    res.send(ico)
+  } catch (error) {
+    res.status(400).json(error)
+  }
+})
+
 app.post("/register", (req, res) => {
   hf.doRegister(req, res)
     .then(data => {
