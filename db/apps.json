@@ -1,7 +1,21 @@
 [
     {
-        "tradingbots": {
-            "currencies": ["EUR","BTC"]
-        }
+        "id": 0,
+        "title": "Home",
+        "component": "home",
+        "icon" : "mdi-home-variant"
+    },
+    {
+        "id": 1,
+        "title": "Trading Bots",
+        "component": "bots",
+        "icon" : "mdi-chart-line",
+        "currencies": ["EUR","BTC"]
+    },
+    {
+        "id": 20,
+        "title": "Settings",
+        "component": "settings",
+        "icon" : "mdi-cog"
     }
 ]

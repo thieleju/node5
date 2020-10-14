@@ -26,7 +26,8 @@ app.get("/apps", hf.verifyToken, (req, res) => {
     if (err) {
       res.json(err)
     } else {
-      res.json({ apps: fs.readFileSync("./db/apps.json") })
+      let apps = JSON.parse(fs.readFileSync("./db/apps.json"))
+      res.json({ apps })
     }
   })
 })

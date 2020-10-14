@@ -2,7 +2,7 @@
 node_modules
 dist
 db/user.json
-cert
+src/assets/dsgvo.html
 
 
 # local env files
