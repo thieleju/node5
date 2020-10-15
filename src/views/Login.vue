@@ -59,7 +59,7 @@ export default {
   created() {
     if (this.$store.getters["isAuthenticated"]) {
       this.$router.push({ name: "dashboard" })
-    } 
+    }
   },
   methods: {
     validateLogin() {
@@ -95,7 +95,7 @@ export default {
         }
       }).fire({
         icon: "success",
-        title: message 
+        title: message
       })
     },
     loginFailed(message) {

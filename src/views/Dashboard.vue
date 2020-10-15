@@ -1,14 +1,14 @@
 <template>
   <v-app id="inspire">
     <v-app-bar app dark color="primary">
-      <v-btn icon @click.stop="component.drawer = !component.drawer">
-        <v-icon>{{ navigator.chevron }}</v-icon>
+      <v-btn icon @click.stop="drawer = !drawer">
+        <v-icon>{{ chevron }}</v-icon>
       </v-btn>
       <v-toolbar-title>{{ component.currentTitle }}</v-toolbar-title>
       <v-spacer></v-spacer>
       <v-icon @click="logout">mdi-logout-variant</v-icon>
     </v-app-bar>
-    <v-navigation-drawer app floating v-model="component.drawer">
+    <v-navigation-drawer app floating v-model="drawer">
       <v-list color="primary">
         <v-list-item>
           <v-icon>mdi-account</v-icon>
@@ -18,7 +18,7 @@
       <v-list dense>
         <v-list-item
           link
-          v-for="app in navigator.apps"
+          v-for="app in apps"
           :key="app.id"
           @click="setComponent(app.component, app.title)"
         >
@@ -64,11 +64,9 @@ export default {
         currentTitle: "Dashboard",
         currentComponent: null
       },
-      navigator: {
-        apps: null,
-        drawer: true,
-        chevron: "mdi-chevron-left"
-      }
+      drawer: true,
+      apps: null,
+      chevron: "mdi-chevron-left"
     }
   },
   created() {
@@ -77,12 +75,11 @@ export default {
     this.user.username = user.username
     this.user.email = user.email
 
-    // init component
-    this.setComponent("home", "Home")
-
     // init apps
     axios.get(this.$store.getters.getAPIUrl + "/apps").then(data => {
-      this.navigator.apps = data.data.apps
+      this.apps = data.data.apps
+      // init component
+      this.setComponent(data.data.apps[0].component, data.data.apps[0].title)
     })
   },
   methods: {
@@ -97,9 +94,9 @@ export default {
     },
     setChevron(state) {
       if (state === "left") {
-        this.navigator.chevron = "mdi-chevron-left"
+        this.chevron = "mdi-chevron-left"
       } else if (state === "right") {
-        this.navigator.chevron = "mdi-chevron-right"
+        this.chevron = "mdi-chevron-right"
       }
     }
   },
