@@ -4,7 +4,7 @@
       <v-container class="fill-height" fluid>
         <v-row align="center" justify="center">
           <v-col cols="12" sm="8" md="4">
-            <v-card class="elevation-12" color="background">
+            <v-card class="elevation-12" color="secondary">
               <v-toolbar color="primary" dark>
                 <v-toolbar-title>Login to your Node 5 account</v-toolbar-title>
               </v-toolbar>
