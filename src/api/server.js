@@ -27,7 +27,30 @@ app.get("/apps", hf.verifyToken, (req, res) => {
       res.json(err)
     } else {
       let apps = JSON.parse(fs.readFileSync("./db/apps.json"))
-      res.json({ apps })
+      res.json(apps)
+    }
+  })
+})
+
+app.get("/coinbaseconfig/:username", hf.verifyToken, (req, res) => {
+  jwt.verify(req.token, process.env.VUE_APP_SECRET_KEY, err => {
+    if (err) {
+      res.json(err)
+    } else {
+      let username = req.params.username.split(":")[1]
+      let config = null
+      // read userdata and return coinbaseconfig
+      JSON.parse(fs.readFileSync("./db/user.json")).forEach(user => {
+        if (user.username == username) {
+          config = user.coinbaseconfig
+        }
+      })
+      // check if config was found
+      if (config) {
+        res.json(config)
+      } else {
+        res.sendStatus(401)
+      }
     }
   })
 })

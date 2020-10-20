@@ -77,9 +77,9 @@ export default {
 
     // init apps
     axios.get(this.$store.getters.getAPIUrl + "/apps").then(data => {
-      this.apps = data.data.apps
+      this.apps = data.data
       // init component
-      this.setComponent(data.data.apps[0].component, data.data.apps[0].title)
+      this.setComponent(data.data[0].component, data.data[0].title)
     })
   },
   methods: {

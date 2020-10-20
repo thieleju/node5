@@ -11,27 +11,38 @@
             class="paddingTopCont"
             label="API Key"
             hide-details="auto"
-            :append-icon="showPasswords.pApi ? 'mdi-eye' : 'mdi-eye-off'"
-            :type="showPasswords.pApi ? 'text' : 'password'"
-            @click:append="showPasswords.pApi = !showPasswords.pApi"
+            :append-icon="production.api.showpass ? 'mdi-eye' : 'mdi-eye-off'"
+            :type="production.api.showpass ? 'text' : 'password'"
+            @click:append="production.api.showpass = !production.api.showpass"
+            v-model="production.api.data"
           ></v-text-field>
 
           <v-text-field
             class="paddingTopCont"
             label="Passphrase"
             hide-details="auto"
-            :append-icon="showPasswords.pPhrase ? 'mdi-eye' : 'mdi-eye-off'"
-            :type="showPasswords.pPhrase ? 'text' : 'password'"
-            @click:append="showPasswords.pPhrase = !showPasswords.pPhrase"
+            :append-icon="
+              production.phrase.showpass ? 'mdi-eye' : 'mdi-eye-off'
+            "
+            :type="production.phrase.showpass ? 'text' : 'password'"
+            @click:append="
+              production.phrase.showpass = !production.phrase.showpass
+            "
+            v-model="production.phrase.data"
           ></v-text-field>
 
           <v-text-field
             class="paddingTopCont"
             label="Secret"
             hide-details="auto"
-            :append-icon="showPasswords.pSecret ? 'mdi-eye' : 'mdi-eye-off'"
-            :type="showPasswords.pSecret ? 'text' : 'password'"
-            @click:append="showPasswords.pSecret = !showPasswords.pSecret"
+            :append-icon="
+              production.secret.showpass ? 'mdi-eye' : 'mdi-eye-off'
+            "
+            :type="production.secret.showpass ? 'text' : 'password'"
+            @click:append="
+              production.secret.showpass = !production.secret.showpass
+            "
+            v-model="production.secret.data"
           ></v-text-field>
 
           <v-card-actions>
@@ -52,27 +63,30 @@
             class="paddingTopCont"
             label="API Key"
             hide-details="auto"
-            :append-icon="showPasswords.sApi ? 'mdi-eye' : 'mdi-eye-off'"
-            :type="showPasswords.sApi ? 'text' : 'password'"
-            @click:append="showPasswords.sApi = !showPasswords.sApi"
+            :append-icon="sandbox.api.showpass ? 'mdi-eye' : 'mdi-eye-off'"
+            :type="sandbox.api.showpass ? 'text' : 'password'"
+            @click:append="sandbox.api.showpass = !sandbox.api.showpass"
+            v-model="sandbox.api.data"
           ></v-text-field>
 
           <v-text-field
             class="paddingTopCont"
             label="Passphrase"
             hide-details="auto"
-            :append-icon="showPasswords.sPhrase ? 'mdi-eye' : 'mdi-eye-off'"
-            :type="showPasswords.sPhrase ? 'text' : 'password'"
-            @click:append="showPasswords.sPhrase = !showPasswords.sPhrase"
+            :append-icon="sandbox.phrase.showpass ? 'mdi-eye' : 'mdi-eye-off'"
+            :type="sandbox.phrase.showpass ? 'text' : 'password'"
+            @click:append="sandbox.phrase.showpass = !sandbox.phrase.showpass"
+            v-model="sandbox.phrase.data"
           ></v-text-field>
 
           <v-text-field
             class="paddingTopCont"
             label="Secret"
             hide-details="auto"
-            :append-icon="showPasswords.sSecret ? 'mdi-eye' : 'mdi-eye-off'"
-            :type="showPasswords.sSecret ? 'text' : 'password'"
-            @click:append="showPasswords.sSecret = !showPasswords.sSecret"
+            :append-icon="sandbox.secret.showpass ? 'mdi-eye' : 'mdi-eye-off'"
+            :type="sandbox.secret.showpass ? 'text' : 'password'"
+            @click:append="sandbox.secret.showpass = !sandbox.secret.showpass"
+            v-model="sandbox.secret.data"
           ></v-text-field>
 
           <v-card-actions>
@@ -109,6 +123,8 @@
 </template>
 
 <script>
+import axios from "axios"
+
 export default {
   data() {
     return {
@@ -116,15 +132,57 @@ export default {
         value => !!value || "Required.",
         value => (value && value.length >= 3) || "Min 3 characters"
       ],
-      showPasswords: {
-        pApi: true,
-        pPhrase: false,
-        pSecret: false,
-        sApi: true,
-        sPhrase: false,
-        sSecret: false
+      production: {
+        api: {
+          showpass: false,
+          data: ""
+        },
+        phrase: {
+          showpass: false,
+          data: ""
+        },
+        secret: {
+          showpass: false,
+          data: ""
+        }
       },
-      items: ["enabled", "disabled"]
+      sandbox: {
+        api: {
+          showpass: false,
+          data: ""
+        },
+        phrase: {
+          showpass: false,
+          data: ""
+        },
+        secret: {
+          showpass: false,
+          data: ""
+        }
+      },
+      items: ["enabled", "disabled"],
+      config: null
+    }
+  },
+  created() {
+    // get username
+    let username = this.$store.getters.getUser.username
+    axios
+      .get(this.$store.getters.getAPIUrl + "/coinbaseconfig/:" + username)
+      .then(data => {
+        // init config
+        this.config = data.data
+        this.setAllDataFieldsFromConfig(this.config)
+      })
+  },
+  methods: {
+    setAllDataFieldsFromConfig(config) {
+      this.production.api.data = config.production.apikey
+      this.production.phrase.data = config.production.passphrase
+      this.production.secret.data = config.production.secret
+      this.sandbox.api.data = config.sandbox.apikey
+      this.sandbox.phrase.data = config.sandbox.passphrase
+      this.sandbox.secret.data = config.sandbox.secret
     }
   }
 }
