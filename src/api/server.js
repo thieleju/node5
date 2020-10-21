@@ -37,7 +37,7 @@ app.get("/config/:configname", hf.verifyToken, (req, res) => {
     if (err) {
       res.json(err)
     } else {
-      const config = hf.getUserConfig(req.params.configname, decoded);
+      const config = hf.getUserConfig(req.params.configname, decoded)
       if (config) {
         res.json(config)
       } else {
@@ -53,7 +53,7 @@ app.get("/checkauth", hf.verifyToken, (req, res) => {
       res.sendStatus(401)
     } else {
       res.json({
-        message: "You are currently logged in as "+decoded.username
+        message: "You are currently logged in as " + decoded.username
       })
     }
   })
@@ -81,13 +81,13 @@ app.post("/saveSettings", (req, res) => {
   hf.doSaveSettings(req, res)
     .then(data => {
       res.status(200).json({
-        status: "success",
+        status: data.status,
         message: data.message
       })
     })
     .catch(error => {
       res.status(200).json({
-        status: "error",
+        status: error.status,
         message: error.message
       })
     })
@@ -97,13 +97,13 @@ app.post("/register", (req, res) => {
   hf.doRegister(req, res)
     .then(data => {
       res.status(200).json({
-        status: "success",
+        status: data.status,
         message: data.message
       })
     })
     .catch(error => {
       res.status(200).json({
-        status: "error",
+        status: error.status,
         message: error.message
       })
     })
@@ -116,12 +116,13 @@ app.post("/login", (req, res) => {
         token: data.token,
         email: req.body.email,
         username: req.body.username,
-        message: data.message
+        message: data.message,
+        status: data.status
       })
     })
     .catch(error => {
       res.status(200).json({
-        status: "error",
+        status: error.status,
         message: error.message
       })
     })

@@ -85,7 +85,7 @@ export default {
       ) {
         this.register()
       } else {
-        this.accountRequestFailed()
+        this.accountRequestFailed("Passwords don't match or empty fields!")
       }
     },
     register() {
@@ -95,14 +95,14 @@ export default {
           email: this.email,
           password: this.password
         })
-        .then(() => {
-          this.accountRequestSuccessful()
+        .then(data => {
+          this.accountRequestSuccessful(data.message)
         })
         .catch(error => {
-          this.accountRequestFailed()
+          this.accountRequestFailed(error.message)
         })
     },
-    accountRequestSuccessful() {
+    accountRequestSuccessful(message) {
       Swal.mixin({
         toast: true,
         position: "top",
@@ -115,10 +115,10 @@ export default {
         }
       }).fire({
         icon: "success",
-        title: "Account successfully requested"
+        title: message
       })
     },
-    accountRequestFailed() {
+    accountRequestFailed(message) {
       Swal.mixin({
         toast: true,
         position: "top",
@@ -129,7 +129,7 @@ export default {
         // onClose: (toast) => {}
       }).fire({
         icon: "error",
-        title: "Failed to send request!"
+        title: message
       })
     }
   }

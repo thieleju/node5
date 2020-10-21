@@ -72,27 +72,17 @@ export default {
       }
     },
     login() {
-      axios.post(this.$store.getters.getAPIUrl + "/login",  {
+      this.$store
+        .dispatch("login", {
           username: this.username,
           password: this.password
-        }).then(data => {
-          if(data.status == "success") {
-            this.loginSuccessful(data.message)
-          } else {
-            this.loginFailed(data.message)
-          }
         })
-      // this.$store
-      //   .dispatch("login", {
-      //     username: this.username,
-      //     password: this.password
-      //   })
-      //   .then(data => {
-      //     this.loginSuccessful(data.message)
-      //   })
-      //   .catch(error => {
-      //     this.loginFailed(error.message)
-      //   })
+        .then(data => {
+          this.loginSuccessful(data.message)
+        })
+        .catch(error => {
+          this.loginFailed(error.message)
+        })
     },
     loginSuccessful(message) {
       Swal.mixin({

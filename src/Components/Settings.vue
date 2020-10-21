@@ -11,9 +11,14 @@
             class="paddingTopCont"
             label="API Key"
             hide-details="auto"
-            :append-icon="settings.production.api.showpass ? 'mdi-eye' : 'mdi-eye-off'"
+            :append-icon="
+              settings.production.api.showpass ? 'mdi-eye' : 'mdi-eye-off'
+            "
             :type="settings.production.api.showpass ? 'text' : 'password'"
-            @click:append="settings.production.api.showpass = !settings.production.api.showpass"
+            @click:append="
+              settings.production.api.showpass = !settings.production.api
+                .showpass
+            "
             v-model="settings.production.api.data"
           ></v-text-field>
 
@@ -26,7 +31,8 @@
             "
             :type="settings.production.phrase.showpass ? 'text' : 'password'"
             @click:append="
-              settings.production.phrase.showpass = !settings.production.phrase.showpass
+              settings.production.phrase.showpass = !settings.production.phrase
+                .showpass
             "
             v-model="settings.production.phrase.data"
           ></v-text-field>
@@ -40,7 +46,8 @@
             "
             :type="settings.production.secret.showpass ? 'text' : 'password'"
             @click:append="
-              settings.production.secret.showpass = !settings.production.secret.showpass
+              settings.production.secret.showpass = !settings.production.secret
+                .showpass
             "
             v-model="settings.production.secret.data"
           ></v-text-field>
@@ -57,9 +64,13 @@
             class="paddingTopCont"
             label="API Key"
             hide-details="auto"
-            :append-icon="settings.sandbox.api.showpass ? 'mdi-eye' : 'mdi-eye-off'"
+            :append-icon="
+              settings.sandbox.api.showpass ? 'mdi-eye' : 'mdi-eye-off'
+            "
             :type="settings.sandbox.api.showpass ? 'text' : 'password'"
-            @click:append="settings.sandbox.api.showpass = !settings.sandbox.api.showpass"
+            @click:append="
+              settings.sandbox.api.showpass = !settings.sandbox.api.showpass
+            "
             v-model="settings.sandbox.api.data"
           ></v-text-field>
 
@@ -67,9 +78,14 @@
             class="paddingTopCont"
             label="Passphrase"
             hide-details="auto"
-            :append-icon="settings.sandbox.phrase.showpass ? 'mdi-eye' : 'mdi-eye-off'"
+            :append-icon="
+              settings.sandbox.phrase.showpass ? 'mdi-eye' : 'mdi-eye-off'
+            "
             :type="settings.sandbox.phrase.showpass ? 'text' : 'password'"
-            @click:append="settings.sandbox.phrase.showpass = !settings.sandbox.phrase.showpass"
+            @click:append="
+              settings.sandbox.phrase.showpass = !settings.sandbox.phrase
+                .showpass
+            "
             v-model="settings.sandbox.phrase.data"
           ></v-text-field>
 
@@ -77,12 +93,16 @@
             class="paddingTopCont"
             label="Secret"
             hide-details="auto"
-            :append-icon="settings.sandbox.secret.showpass ? 'mdi-eye' : 'mdi-eye-off'"
+            :append-icon="
+              settings.sandbox.secret.showpass ? 'mdi-eye' : 'mdi-eye-off'
+            "
             :type="settings.sandbox.secret.showpass ? 'text' : 'password'"
-            @click:append="settings.sandbox.secret.showpass = !settings.sandbox.secret.showpass"
+            @click:append="
+              settings.sandbox.secret.showpass = !settings.sandbox.secret
+                .showpass
+            "
             v-model="settings.sandbox.secret.data"
           ></v-text-field>
-
         </v-card>
       </v-flex>
     </v-layout>
@@ -176,7 +196,7 @@ export default {
   methods: {
     setAllDataFieldsFromConfig(config) {
       // update select box
-      if(config.useSandbox) {
+      if (config.useSandbox) {
         this.settings.general.sandboxMode = this.items[0]
       } else {
         this.settings.general.sandboxMode = this.items[1]
@@ -193,37 +213,36 @@ export default {
       // send Post with settings payload to backend
       let data = null
       axios
-      .post(this.$store.getters.getAPIUrl + "/saveSettings",  data)
-      .then(data => {
-        if(data.data.status == "success") {
-          Swal.mixin({
-            toast: true,
-            position: "top",
-            showConfirmButton: false,
-            padding: "1.3rem",
-            timer: 800,
-            timerProgressBar: false
-          }).fire({
-            icon: "success",
-            title: data.data.message
-          })
-        } else {
-          Swal.mixin({
-            toast: true,
-            position: "top",
-            padding: "1.3rem",
-            showConfirmButton: false,
-            timer: 1200,
-            timerProgressBar: false
-          }).fire({
-            icon: "error",
-            title: data.data.message
-          })
-        }
-      })
+        .post(this.$store.getters.getAPIUrl + "/saveSettings", data)
+        .then(data => {
+          if (data.data.status == "success") {
+            Swal.mixin({
+              toast: true,
+              position: "top",
+              showConfirmButton: false,
+              padding: "1.3rem",
+              timer: 800,
+              timerProgressBar: false
+            }).fire({
+              icon: "success",
+              title: data.data.message
+            })
+          } else {
+            Swal.mixin({
+              toast: true,
+              position: "top",
+              padding: "1.3rem",
+              showConfirmButton: false,
+              timer: 1200,
+              timerProgressBar: false
+            }).fire({
+              icon: "error",
+              title: data.data.message
+            })
+          }
+        })
     }
-  },
-  
+  }
 }
 </script>
 
@@ -231,7 +250,7 @@ export default {
 .cont {
   margin-left: 2%;
   margin-right: 2%;
-  margin-top: 5%;
+  margin-top: 4%;
 }
 .textColor {
   color: var(--v-primary-base);
@@ -239,7 +258,7 @@ export default {
 .contbottom {
   margin-left: 2%;
   margin-right: 2%;
-  margin-top: 5%;
+  margin-top: 4%;
 }
 .paddingTopCont {
   padding-right: 8%;

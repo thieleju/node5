@@ -4,12 +4,16 @@ const fs = require("fs")
 
 // get secret information from .env
 const { config } = require("dotenv")
+const { exit } = require("process")
 config({ path: __dirname + "/.env" })
 
 module.exports = {
   doRegister(req, res) {
     return new Promise((resolve, reject) => {
-      if (!req.body) reject({ message: "Failed to receive data" })
+      if (!req.body) {
+        reject({ status: "error", message: "Failed to receive data" })
+        return
+      }
       // user array
       const obj = crypto.SHA256(req.body.password)
       const pwd = crypto.enc.Base64.stringify(obj)
@@ -19,15 +23,18 @@ module.exports = {
         password: pwd,
         activated: false
       }
+      let userAlreadyExists = false
 
       // read users data
       var d = fs.readFileSync("./db/user.json")
       var userArray = JSON.parse(d)
       // resolve(userArray)
-      // reject promise if user already exits
+      // reject promise if user already exists
       userArray.forEach(el => {
         if (el.username == user.username || el.email == user.email) {
+          userAlreadyExists = true
           reject({ status: "error", message: "User already exits!" })
+          return
         }
       })
       // add to array
@@ -35,16 +42,27 @@ module.exports = {
       // convert to string
       var data = JSON.stringify(userArray, null, 2)
       // write to file
-      fs.writeFile("db/user.json", data, err => {
-        if (err) reject({ status: "error", message: "Failed to write to file" })
-        // resolve promise
-        resolve({ status: "success", message: "Account " + user.username + " requested" })
-      })
+      if (!userAlreadyExists) {
+        fs.writeFile("db/user.json", data, err => {
+          if (err) {
+            reject({ status: "error", message: "Failed to write to file" })
+            return
+          }
+          // resolve promise
+          resolve({
+            status: "success",
+            message: "Account " + user.username + " requested"
+          })
+        })
+      }
     })
   },
   doLogin(req, res) {
     return new Promise((resolve, reject) => {
-      if (!req.body) reject({status: "error",  message: "Failed to receive data" })
+      if (!req.body) {
+        reject({ status: "error", message: "Failed to receive data" })
+        return
+      }
       // user array
       const obj = crypto.SHA256(req.body.password)
       const pwd = crypto.enc.Base64.stringify(obj)
@@ -62,13 +80,21 @@ module.exports = {
               { username: el.username, email: el.email },
               process.env.VUE_APP_SECRET_KEY
             )
-            resolve({status: "success",  message: "Signing in as user "+user.username+" ...", token })
+            resolve({
+              status: "success",
+              message: "Signing in as user " + user.username + " ...",
+              token
+            })
           } else {
             reject({ status: "error", message: "Account not activated" })
+            return
           }
         }
       })
-      reject({ status: "error", message: "User not found or wrong credentials" })
+      reject({
+        status: "error",
+        message: "User not found or wrong credentials"
+      })
     })
   },
   verifyToken(req, res, next) {
@@ -84,12 +110,12 @@ module.exports = {
     }
   },
   isTokenUserCurrentUser(decodedToken, username) {
-    JSON.parse(fs.readFileSync("./db/user.json")).forEach(user => {
-      if(decodedToken.username === username) {
-        return true;
+    JSON.parse(fs.readFileSync("./db/user.json")).forEach(() => {
+      if (decodedToken.username === username) {
+        return true
       }
     })
-    return false;
+    return false
   },
   getUserConfig(configName, decodedToken) {
     // read user data
@@ -97,20 +123,20 @@ module.exports = {
     // loop through users to check if current signed in user matches
     var userData = null
     users.forEach(user => {
-      if(decodedToken.username == user.username) {
+      if (decodedToken.username == user.username) {
         userData = user[configName]
       }
     })
 
-    if(userData) {
-      return userData;
+    if (userData) {
+      return userData
     } else {
-      return null;
+      return null
     }
   },
   doSaveSettings(req, res) {
     return new Promise((resolve, reject) => {
-      resolve({message: "Shippi hat nen großen Lümmel"})
+      resolve({ message: "Shippi hat nen großen Lümmel" })
       //reject({message: "Shippi hat nen kleinen Lümmel"})
     })
   }
