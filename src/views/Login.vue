@@ -48,6 +48,7 @@
 
 <script>
 import Swal from "sweetalert2"
+import axios from "axios"
 
 export default {
   data() {
@@ -57,6 +58,7 @@ export default {
     }
   },
   created() {
+    // redirect to dashboard if logged in
     if (this.$store.getters["isAuthenticated"]) {
       this.$router.push({ name: "dashboard" })
     }
@@ -70,17 +72,27 @@ export default {
       }
     },
     login() {
-      this.$store
-        .dispatch("login", {
+      axios.post(this.$store.getters.getAPIUrl + "/login",  {
           username: this.username,
           password: this.password
+        }).then(data => {
+          if(data.status == "success") {
+            this.loginSuccessful(data.message)
+          } else {
+            this.loginFailed(data.message)
+          }
         })
-        .then(data => {
-          this.loginSuccessful(data.message)
-        })
-        .catch(error => {
-          this.loginFailed(error.message)
-        })
+      // this.$store
+      //   .dispatch("login", {
+      //     username: this.username,
+      //     password: this.password
+      //   })
+      //   .then(data => {
+      //     this.loginSuccessful(data.message)
+      //   })
+      //   .catch(error => {
+      //     this.loginFailed(error.message)
+      //   })
     },
     loginSuccessful(message) {
       Swal.mixin({

@@ -27,7 +27,7 @@ module.exports = {
       // reject promise if user already exits
       userArray.forEach(el => {
         if (el.username == user.username || el.email == user.email) {
-          reject({ message: "User already exits!" })
+          reject({ status: "error", message: "User already exits!" })
         }
       })
       // add to array
@@ -36,15 +36,15 @@ module.exports = {
       var data = JSON.stringify(userArray, null, 2)
       // write to file
       fs.writeFile("db/user.json", data, err => {
-        if (err) reject({ message: "Failed to write to file" })
+        if (err) reject({ status: "error", message: "Failed to write to file" })
         // resolve promise
-        resolve({ message: "Account " + user.username + " requested" })
+        resolve({ status: "success", message: "Account " + user.username + " requested" })
       })
     })
   },
   doLogin(req, res) {
     return new Promise((resolve, reject) => {
-      if (!req.body) reject({ message: "Failed to receive data" })
+      if (!req.body) reject({status: "error",  message: "Failed to receive data" })
       // user array
       const obj = crypto.SHA256(req.body.password)
       const pwd = crypto.enc.Base64.stringify(obj)
@@ -62,13 +62,13 @@ module.exports = {
               { username: el.username, email: el.email },
               process.env.VUE_APP_SECRET_KEY
             )
-            resolve({ message: "Signing in ...", token })
+            resolve({status: "success",  message: "Signing in as user "+user.username+" ...", token })
           } else {
-            reject({ message: "Account not activated" })
+            reject({ status: "error", message: "Account not activated" })
           }
         }
       })
-      reject({ message: "User not found or wrong credentials" })
+      reject({ status: "error", message: "User not found or wrong credentials" })
     })
   },
   verifyToken(req, res, next) {
@@ -107,5 +107,11 @@ module.exports = {
     } else {
       return null;
     }
+  },
+  doSaveSettings(req, res) {
+    return new Promise((resolve, reject) => {
+      resolve({message: "Shippi hat nen großen Lümmel"})
+      //reject({message: "Shippi hat nen kleinen Lümmel"})
+    })
   }
 }

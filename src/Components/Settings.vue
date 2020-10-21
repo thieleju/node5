@@ -11,10 +11,10 @@
             class="paddingTopCont"
             label="API Key"
             hide-details="auto"
-            :append-icon="production.api.showpass ? 'mdi-eye' : 'mdi-eye-off'"
-            :type="production.api.showpass ? 'text' : 'password'"
-            @click:append="production.api.showpass = !production.api.showpass"
-            v-model="production.api.data"
+            :append-icon="settings.production.api.showpass ? 'mdi-eye' : 'mdi-eye-off'"
+            :type="settings.production.api.showpass ? 'text' : 'password'"
+            @click:append="settings.production.api.showpass = !settings.production.api.showpass"
+            v-model="settings.production.api.data"
           ></v-text-field>
 
           <v-text-field
@@ -22,13 +22,13 @@
             label="Passphrase"
             hide-details="auto"
             :append-icon="
-              production.phrase.showpass ? 'mdi-eye' : 'mdi-eye-off'
+              settings.production.phrase.showpass ? 'mdi-eye' : 'mdi-eye-off'
             "
-            :type="production.phrase.showpass ? 'text' : 'password'"
+            :type="settings.production.phrase.showpass ? 'text' : 'password'"
             @click:append="
-              production.phrase.showpass = !production.phrase.showpass
+              settings.production.phrase.showpass = !settings.production.phrase.showpass
             "
-            v-model="production.phrase.data"
+            v-model="settings.production.phrase.data"
           ></v-text-field>
 
           <v-text-field
@@ -36,13 +36,13 @@
             label="Secret"
             hide-details="auto"
             :append-icon="
-              production.secret.showpass ? 'mdi-eye' : 'mdi-eye-off'
+              settings.production.secret.showpass ? 'mdi-eye' : 'mdi-eye-off'
             "
-            :type="production.secret.showpass ? 'text' : 'password'"
+            :type="settings.production.secret.showpass ? 'text' : 'password'"
             @click:append="
-              production.secret.showpass = !production.secret.showpass
+              settings.production.secret.showpass = !settings.production.secret.showpass
             "
-            v-model="production.secret.data"
+            v-model="settings.production.secret.data"
           ></v-text-field>
         </v-card>
       </v-flex>
@@ -57,30 +57,30 @@
             class="paddingTopCont"
             label="API Key"
             hide-details="auto"
-            :append-icon="sandbox.api.showpass ? 'mdi-eye' : 'mdi-eye-off'"
-            :type="sandbox.api.showpass ? 'text' : 'password'"
-            @click:append="sandbox.api.showpass = !sandbox.api.showpass"
-            v-model="sandbox.api.data"
+            :append-icon="settings.sandbox.api.showpass ? 'mdi-eye' : 'mdi-eye-off'"
+            :type="settings.sandbox.api.showpass ? 'text' : 'password'"
+            @click:append="settings.sandbox.api.showpass = !settings.sandbox.api.showpass"
+            v-model="settings.sandbox.api.data"
           ></v-text-field>
 
           <v-text-field
             class="paddingTopCont"
             label="Passphrase"
             hide-details="auto"
-            :append-icon="sandbox.phrase.showpass ? 'mdi-eye' : 'mdi-eye-off'"
-            :type="sandbox.phrase.showpass ? 'text' : 'password'"
-            @click:append="sandbox.phrase.showpass = !sandbox.phrase.showpass"
-            v-model="sandbox.phrase.data"
+            :append-icon="settings.sandbox.phrase.showpass ? 'mdi-eye' : 'mdi-eye-off'"
+            :type="settings.sandbox.phrase.showpass ? 'text' : 'password'"
+            @click:append="settings.sandbox.phrase.showpass = !settings.sandbox.phrase.showpass"
+            v-model="settings.sandbox.phrase.data"
           ></v-text-field>
 
           <v-text-field
             class="paddingTopCont"
             label="Secret"
             hide-details="auto"
-            :append-icon="sandbox.secret.showpass ? 'mdi-eye' : 'mdi-eye-off'"
-            :type="sandbox.secret.showpass ? 'text' : 'password'"
-            @click:append="sandbox.secret.showpass = !sandbox.secret.showpass"
-            v-model="sandbox.secret.data"
+            :append-icon="settings.sandbox.secret.showpass ? 'mdi-eye' : 'mdi-eye-off'"
+            :type="settings.sandbox.secret.showpass ? 'text' : 'password'"
+            @click:append="settings.sandbox.secret.showpass = !settings.sandbox.secret.showpass"
+            v-model="settings.sandbox.secret.data"
           ></v-text-field>
 
         </v-card>
@@ -97,7 +97,7 @@
           <v-select
             class="paddingBottomCont"
             :items="items"
-            v-model="general.sandboxMode"
+            v-model="settings.general.sandboxMode"
             label="Sandbox Mode"
           ></v-select>
 
@@ -116,6 +116,8 @@
 <script>
 import axios from "axios"
 
+import Swal from "sweetalert2"
+
 export default {
   data() {
     return {
@@ -123,35 +125,37 @@ export default {
         value => !!value || "Required.",
         value => (value && value.length >= 3) || "Min 3 characters"
       ],
-      general: {
-        sandboxMode: ""
-      },
-      production: {
-        api: {
-          showpass: false,
-          data: ""
+      settings: {
+        general: {
+          sandboxMode: ""
         },
-        phrase: {
-          showpass: false,
-          data: ""
+        production: {
+          api: {
+            showpass: false,
+            data: ""
+          },
+          phrase: {
+            showpass: false,
+            data: ""
+          },
+          secret: {
+            showpass: false,
+            data: ""
+          }
         },
-        secret: {
-          showpass: false,
-          data: ""
-        }
-      },
-      sandbox: {
-        api: {
-          showpass: false,
-          data: ""
-        },
-        phrase: {
-          showpass: false,
-          data: ""
-        },
-        secret: {
-          showpass: false,
-          data: ""
+        sandbox: {
+          api: {
+            showpass: false,
+            data: ""
+          },
+          phrase: {
+            showpass: false,
+            data: ""
+          },
+          secret: {
+            showpass: false,
+            data: ""
+          }
         }
       },
       items: ["enabled", "disabled"],
@@ -173,20 +177,50 @@ export default {
     setAllDataFieldsFromConfig(config) {
       // update select box
       if(config.useSandbox) {
-        this.general.sandboxMode = this.items[0]
+        this.settings.general.sandboxMode = this.items[0]
       } else {
-        this.general.sandboxMode = this.items[1]
+        this.settings.general.sandboxMode = this.items[1]
       }
       // update fields
-      this.production.api.data = config.production.apikey
-      this.production.phrase.data = config.production.passphrase
-      this.production.secret.data = config.production.secret
-      this.sandbox.api.data = config.sandbox.apikey
-      this.sandbox.phrase.data = config.sandbox.passphrase
-      this.sandbox.secret.data = config.sandbox.secret
+      this.settings.production.api.data = config.production.apikey
+      this.settings.production.phrase.data = config.production.passphrase
+      this.settings.production.secret.data = config.production.secret
+      this.settings.sandbox.api.data = config.sandbox.apikey
+      this.settings.sandbox.phrase.data = config.sandbox.passphrase
+      this.settings.sandbox.secret.data = config.sandbox.secret
     },
     saveChanges() {
-      console.log("trying to save")
+      // send Post with settings payload to backend
+      let data = null
+      axios
+      .post(this.$store.getters.getAPIUrl + "/saveSettings",  data)
+      .then(data => {
+        if(data.data.status == "success") {
+          Swal.mixin({
+            toast: true,
+            position: "top",
+            showConfirmButton: false,
+            padding: "1.3rem",
+            timer: 800,
+            timerProgressBar: false
+          }).fire({
+            icon: "success",
+            title: data.data.message
+          })
+        } else {
+          Swal.mixin({
+            toast: true,
+            position: "top",
+            padding: "1.3rem",
+            showConfirmButton: false,
+            timer: 1200,
+            timerProgressBar: false
+          }).fire({
+            icon: "error",
+            title: data.data.message
+          })
+        }
+      })
     }
   },
   

@@ -77,6 +77,22 @@ app.get("/favicon.ico", (req, res) => {
   }
 })
 
+app.post("/saveSettings", (req, res) => {
+  hf.doSaveSettings(req, res)
+    .then(data => {
+      res.status(200).json({
+        status: "success",
+        message: data.message
+      })
+    })
+    .catch(error => {
+      res.status(200).json({
+        status: "error",
+        message: error.message
+      })
+    })
+})
+
 app.post("/register", (req, res) => {
   hf.doRegister(req, res)
     .then(data => {
@@ -86,8 +102,8 @@ app.post("/register", (req, res) => {
       })
     })
     .catch(error => {
-      res.status(401).json({
-        status: "failed",
+      res.status(200).json({
+        status: "error",
         message: error.message
       })
     })
@@ -104,7 +120,7 @@ app.post("/login", (req, res) => {
       })
     })
     .catch(error => {
-      res.status(401).json({
+      res.status(200).json({
         status: "error",
         message: error.message
       })
