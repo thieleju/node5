@@ -3,7 +3,7 @@
     <v-layout row wrap>
       <v-flex class="cont">
         <v-card color="secondary" elevation="3" dark>
-          <v-card-title class="headline">
+          <v-card-title class="headline textColor">
             Coinbase Production Settings
           </v-card-title>
 
@@ -44,18 +44,12 @@
             "
             v-model="production.secret.data"
           ></v-text-field>
-
-          <v-card-actions>
-            <v-btn text color="accent">
-              Save changes
-            </v-btn>
-          </v-card-actions>
         </v-card>
       </v-flex>
 
       <v-flex class="cont">
         <v-card color="secondary" elevation="3" dark>
-          <v-card-title class="headline">
+          <v-card-title class="headline textColor">
             Coinbase Sandbox Settings
           </v-card-title>
 
@@ -89,30 +83,27 @@
             v-model="sandbox.secret.data"
           ></v-text-field>
 
-          <v-card-actions>
-            <v-btn text color="accent">
-              Save changes
-            </v-btn>
-          </v-card-actions>
         </v-card>
       </v-flex>
     </v-layout>
 
     <v-layout column>
-      <v-flex class="cont">
+      <v-flex class="contbottom">
         <v-card color="secondary" elevation="3" dark>
-          <v-card-title class="headline">
+          <v-card-title class="headline textColor">
             General Settings
           </v-card-title>
 
           <v-select
             class="paddingBottomCont"
             :items="items"
+            v-model="general.sandboxMode"
             label="Sandbox Mode"
           ></v-select>
 
           <v-card-actions>
-            <v-btn text color="accent">
+            <v-spacer></v-spacer>
+            <v-btn text color="accent" @click="saveChanges">
               Save changes
             </v-btn>
           </v-card-actions>
@@ -132,6 +123,9 @@ export default {
         value => !!value || "Required.",
         value => (value && value.length >= 3) || "Min 3 characters"
       ],
+      general: {
+        sandboxMode: ""
+      },
       production: {
         api: {
           showpass: false,
@@ -177,14 +171,25 @@ export default {
   },
   methods: {
     setAllDataFieldsFromConfig(config) {
+      // update select box
+      if(config.useSandbox) {
+        this.general.sandboxMode = this.items[0]
+      } else {
+        this.general.sandboxMode = this.items[1]
+      }
+      // update fields
       this.production.api.data = config.production.apikey
       this.production.phrase.data = config.production.passphrase
       this.production.secret.data = config.production.secret
       this.sandbox.api.data = config.sandbox.apikey
       this.sandbox.phrase.data = config.sandbox.passphrase
       this.sandbox.secret.data = config.sandbox.secret
+    },
+    saveChanges() {
+      console.log("trying to save")
     }
-  }
+  },
+  
 }
 </script>
 
@@ -192,19 +197,21 @@ export default {
 .cont {
   margin-left: 2%;
   margin-right: 2%;
-  margin-top: 2%;
+  margin-top: 5%;
 }
 .textColor {
   color: var(--v-primary-base);
 }
-.miniCont {
-  max-width: 30vh;
+.contbottom {
+  margin-left: 2%;
+  margin-right: 2%;
+  margin-top: 5%;
 }
 .paddingTopCont {
   padding-right: 8%;
   padding-left: 8%;
-  padding-top: 3%;
-  padding-bottom: 3%;
+  padding-top: 5%;
+  padding-bottom: 5%;
 }
 
 .paddingBottomCont {

@@ -19,6 +19,9 @@ export default new Vuetify({
         accent: "#4ECCA3"
         // error: ""
       }
+    },
+    options: {
+      customProperties: true
     }
   }
 })
