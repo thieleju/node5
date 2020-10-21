@@ -32,20 +32,12 @@ app.get("/apps", hf.verifyToken, (req, res) => {
   })
 })
 
-app.get("/coinbaseconfig/:username", hf.verifyToken, (req, res) => {
-  jwt.verify(req.token, process.env.VUE_APP_SECRET_KEY, err => {
+app.get("/config/:configname", hf.verifyToken, (req, res) => {
+  jwt.verify(req.token, process.env.VUE_APP_SECRET_KEY, (err, decoded) => {
     if (err) {
       res.json(err)
     } else {
-      let username = req.params.username.split(":")[1]
-      let config = null
-      // read userdata and return coinbaseconfig
-      JSON.parse(fs.readFileSync("./db/user.json")).forEach(user => {
-        if (user.username == username) {
-          config = user.coinbaseconfig
-        }
-      })
-      // check if config was found
+      const config = hf.getUserConfig(req.params.configname, decoded);
       if (config) {
         res.json(config)
       } else {
@@ -56,12 +48,12 @@ app.get("/coinbaseconfig/:username", hf.verifyToken, (req, res) => {
 })
 
 app.get("/checkauth", hf.verifyToken, (req, res) => {
-  jwt.verify(req.token, process.env.VUE_APP_SECRET_KEY, err => {
+  jwt.verify(req.token, process.env.VUE_APP_SECRET_KEY, (err, decoded) => {
     if (err) {
       res.sendStatus(401)
     } else {
       res.json({
-        message: "You are currently logged in!"
+        message: "You are currently logged in as "+decoded.username
       })
     }
   })

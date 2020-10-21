@@ -168,7 +168,7 @@ export default {
     // get username
     let username = this.$store.getters.getUser.username
     axios
-      .get(this.$store.getters.getAPIUrl + "/coinbaseconfig/:" + username)
+      .get(this.$store.getters.getAPIUrl + "/config/coinbaseconfig")
       .then(data => {
         // init config
         this.config = data.data

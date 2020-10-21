@@ -54,13 +54,12 @@ module.exports = {
       }
       // read users data
       var userArray = JSON.parse(fs.readFileSync("./db/user.json"))
-
       // loop through users
       userArray.forEach(el => {
         if (el.username === user.username && el.password === user.password) {
           if (el.activated) {
             const token = jwt.sign(
-              { userArray },
+              { username: el.username, email: el.email },
               process.env.VUE_APP_SECRET_KEY
             )
             resolve({ message: "Signing in ...", token })
@@ -82,6 +81,31 @@ module.exports = {
       next()
     } else {
       res.sendStatus(401)
+    }
+  },
+  isTokenUserCurrentUser(decodedToken, username) {
+    JSON.parse(fs.readFileSync("./db/user.json")).forEach(user => {
+      if(decodedToken.username === username) {
+        return true;
+      }
+    })
+    return false;
+  },
+  getUserConfig(configName, decodedToken) {
+    // read user data
+    var users = JSON.parse(fs.readFileSync("./db/user.json"))
+    // loop through users to check if current signed in user matches
+    var userData = null
+    users.forEach(user => {
+      if(decodedToken.username == user.username) {
+        userData = user[configName]
+      }
+    })
+
+    if(userData) {
+      return userData;
+    } else {
+      return null;
     }
   }
 }
