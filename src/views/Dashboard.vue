@@ -36,7 +36,9 @@
         <v-row class="fill-height">
           <v-col>
             <transition name="fade">
-              <component :is="component.currentComponent"></component>
+              <keep-alive max="5">
+                <component :is="component.currentComponent"></component>
+              </keep-alive>
             </transition>
           </v-col>
         </v-row>
@@ -61,7 +63,7 @@ export default {
         email: null
       },
       component: {
-        currentTitle: "Dashboard",
+        currentTitle: null,
         currentComponent: null
       },
       drawer: true,

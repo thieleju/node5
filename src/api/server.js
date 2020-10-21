@@ -77,20 +77,26 @@ app.get("/favicon.ico", (req, res) => {
   }
 })
 
-app.post("/saveSettings", (req, res) => {
-  hf.doSaveSettings(req, res)
-    .then(data => {
-      res.status(200).json({
-        status: data.status,
-        message: data.message
-      })
-    })
-    .catch(error => {
-      res.status(200).json({
-        status: error.status,
-        message: error.message
-      })
-    })
+app.post("/saveSettings", hf.verifyToken, (req, res) => {
+  jwt.verify(req.token, process.env.VUE_APP_SECRET_KEY, (err, decoded) => {
+    if (err) {
+      res.sendStatus(401)
+    } else {
+      hf.doSaveConfig(req, res, decoded, "coinbaseconfig")
+        .then(data => {
+          res.status(200).json({
+            status: data.status,
+            message: data.message
+          })
+        })
+        .catch(error => {
+          res.status(200).json({
+            status: error.status,
+            message: error.message
+          })
+        })
+    }
+  })
 })
 
 app.post("/register", (req, res) => {

@@ -210,10 +210,31 @@ export default {
       this.settings.sandbox.secret.data = config.sandbox.secret
     },
     saveChanges() {
+      // get select box value
+      let sbmode = null
+      if (this.settings.general.sandboxMode == this.items[0]) sbmode = true
+      else sbmode = false
+
+      // build payload data
+      let payload = {
+        coinbaseconfig: {
+          useSandbox: sbmode,
+          sandbox: {
+            apikey: this.settings.sandbox.api.data,
+            passphrase: this.settings.sandbox.phrase.data,
+            secret: this.settings.sandbox.secret.data
+          },
+          production: {
+            apikey: this.settings.production.api.data,
+            passphrase: this.settings.production.phrase.data,
+            secret: this.settings.production.secret.data
+          }
+        }
+      }
+      console.log(payload)
       // send Post with settings payload to backend
-      let data = null
       axios
-        .post(this.$store.getters.getAPIUrl + "/saveSettings", data)
+        .post(this.$store.getters.getAPIUrl + "/saveSettings", payload)
         .then(data => {
           if (data.data.status == "success") {
             Swal.mixin({

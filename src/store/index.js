@@ -24,8 +24,9 @@ export default new Vuex.Store({
   },
   mutations: {
     SET_USER_DATA(state, userData) {
-      state.user = userData
-      localStorage.setItem("user", JSON.stringify(userData))
+      let userObj = { token: userData.token, username: userData.username }
+      state.user = userObj
+      localStorage.setItem("user", JSON.stringify(userObj))
       axios.defaults.headers.common[
         "Authorization"
       ] = `Bearer ${userData.token}`

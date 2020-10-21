@@ -21,14 +21,25 @@ module.exports = {
         username: req.body.username,
         email: req.body.email,
         password: pwd,
-        activated: false
+        activated: false,
+        coinbaseconfig: {
+          useSandbox: false,
+          sandbox: {
+            apikey: "",
+            passphrase: "",
+            secret: ""
+          },
+          production: {
+            apikey: "",
+            passphrase: "",
+            secret: ""
+          }
+        }
       }
       let userAlreadyExists = false
 
       // read users data
-      var d = fs.readFileSync("./db/user.json")
-      var userArray = JSON.parse(d)
-      // resolve(userArray)
+      var userArray = JSON.parse(fs.readFileSync("./db/user.json"))
       // reject promise if user already exists
       userArray.forEach(el => {
         if (el.username == user.username || el.email == user.email) {
@@ -134,10 +145,74 @@ module.exports = {
       return null
     }
   },
-  doSaveSettings(req, res) {
+  doSaveConfig(req, res, decodedToken, configname) {
     return new Promise((resolve, reject) => {
-      resolve({ message: "Shippi hat nen großen Lümmel" })
-      //reject({message: "Shippi hat nen kleinen Lümmel"})
+      if (!req.body) {
+        reject({ status: "error", message: "Failed to receive data" })
+        return
+      }
+
+      let oldConfig = module.exports.getUserConfig(configname, decodedToken)
+
+      if (!oldConfig) {
+        reject({ status: "error", message: "Could not get old config" })
+        return
+      }
+
+      if (JSON.stringify(oldConfig) == JSON.stringify(req.body[configname])) {
+        reject({ status: "error", message: "No changes found" })
+        return
+      }
+
+      // read users data
+      var userArray = JSON.parse(fs.readFileSync("./db/user.json"))
+
+      //TODO find a way to do this recursively for every config
+      if (configname == "coinbaseconfig") {
+        var newConfig = req.body.coinbaseconfig
+        // WARNING: prepare for ugly code
+        for (let i = 0; i < userArray.length; i++) {
+          if (userArray[i].username == decodedToken.username) {
+            userArray[i].coinbaseconfig.useSandbox = newConfig.useSandbox
+            userArray[i].coinbaseconfig.sandbox.apikey =
+              newConfig.sandbox.apikey
+            userArray[i].coinbaseconfig.sandbox.passphrase =
+              newConfig.sandbox.passphrase
+            userArray[i].coinbaseconfig.sandbox.secret =
+              newConfig.sandbox.secret
+            userArray[i].coinbaseconfig.production.apikey =
+              newConfig.production.apikey
+            userArray[i].coinbaseconfig.production.passphrase =
+              newConfig.production.passphrase
+            userArray[i].coinbaseconfig.production.secret =
+              newConfig.production.secret
+
+            fs.writeFile(
+              "db/user.json",
+              JSON.stringify(userArray, null, 2),
+              err => {
+                if (err) {
+                  reject({
+                    status: "error",
+                    message: "Failed to write to file"
+                  })
+                  return
+                }
+                resolve({
+                  status: "success",
+                  message: "Updated config successfully"
+                })
+              }
+            )
+            // lets pretend you didn't see that
+          }
+        }
+      } else {
+        reject({
+          status: "error",
+          messag: "Awesome code is yet to be written, sorry"
+        })
+      }
     })
   }
 }
