@@ -52,9 +52,9 @@ import axios from "axios"
 
 export default {
   components: {
-    home: () => import("../Components/Home"),
-    bots: () => import("../Components/Bots"),
-    settings: () => import("../Components/Settings")
+    home: () => import("../components/Home"),
+    bots: () => import("../components/Bots"),
+    settings: () => import("../components/Settings")
   },
   data() {
     return {

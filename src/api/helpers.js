@@ -4,8 +4,9 @@ const fs = require("fs")
 
 // get secret information from .env
 const { config } = require("dotenv")
-const { exit } = require("process")
 config({ path: __dirname + "/.env" })
+
+var coinbaseHelpers = require("./coinbaseHelpers")
 
 module.exports = {
   doRegister(req, res) {
@@ -22,6 +23,13 @@ module.exports = {
         email: req.body.email,
         password: pwd,
         activated: false,
+        workerData: {
+          workerID: module.exports.generateID(
+            coinbaseHelpers.getWorkerIDLength()
+          ),
+          status: "offline",
+          timeBetweenChecksInS: 30
+        },
         coinbaseconfig: {
           useSandbox: false,
           sandbox: {
@@ -88,7 +96,7 @@ module.exports = {
         if (el.username === user.username && el.password === user.password) {
           if (el.activated) {
             const token = jwt.sign(
-              { username: el.username, email: el.email },
+              { username: el.username },
               process.env.VUE_APP_SECRET_KEY
             )
             resolve({
@@ -147,19 +155,22 @@ module.exports = {
   },
   doSaveConfig(req, res, decodedToken, configname) {
     return new Promise((resolve, reject) => {
-      if (!req.body) {
+      if (!req.body || !req.body.coinbaseconfig) {
         reject({ status: "error", message: "Failed to receive data" })
         return
       }
-
       let oldConfig = module.exports.getUserConfig(configname, decodedToken)
+      let data = req.body.coinbaseconfig
 
       if (!oldConfig) {
-        reject({ status: "error", message: "Could not get old config" })
+        reject({
+          status: "error",
+          message: "Could not get old config"
+        })
         return
       }
 
-      if (JSON.stringify(oldConfig) == JSON.stringify(req.body[configname])) {
+      if (JSON.stringify(oldConfig) == JSON.stringify(data)) {
         reject({ status: "error", message: "No changes found" })
         return
       }
@@ -169,50 +180,123 @@ module.exports = {
 
       //TODO find a way to do this recursively for every config
       if (configname == "coinbaseconfig") {
-        var newConfig = req.body.coinbaseconfig
-        // WARNING: prepare for ugly code
         for (let i = 0; i < userArray.length; i++) {
           if (userArray[i].username == decodedToken.username) {
-            userArray[i].coinbaseconfig.useSandbox = newConfig.useSandbox
-            userArray[i].coinbaseconfig.sandbox.apikey =
-              newConfig.sandbox.apikey
+            userArray[i].coinbaseconfig.useSandbox = data.useSandbox
+            userArray[i].coinbaseconfig.sandbox.apikey = data.sandbox.apikey
             userArray[i].coinbaseconfig.sandbox.passphrase =
-              newConfig.sandbox.passphrase
-            userArray[i].coinbaseconfig.sandbox.secret =
-              newConfig.sandbox.secret
+              data.sandbox.passphrase
+            userArray[i].coinbaseconfig.sandbox.secret = data.sandbox.secret
             userArray[i].coinbaseconfig.production.apikey =
-              newConfig.production.apikey
+              data.production.apikey
             userArray[i].coinbaseconfig.production.passphrase =
-              newConfig.production.passphrase
+              data.production.passphrase
             userArray[i].coinbaseconfig.production.secret =
-              newConfig.production.secret
+              data.production.secret
 
-            fs.writeFile(
-              "db/user.json",
-              JSON.stringify(userArray, null, 2),
-              err => {
-                if (err) {
-                  reject({
-                    status: "error",
-                    message: "Failed to write to file"
-                  })
-                  return
-                }
-                resolve({
-                  status: "success",
-                  message: "Updated config successfully"
-                })
-              }
-            )
             // lets pretend you didn't see that
+          }
+        }
+      } else if (configname == "workerData") {
+        // make workerData changes
+        for (let i = 0; i < userArray.length; i++) {
+          if (userArray[i].username == decodedToken.username) {
+            userArray[i].workerData.status = data.status
           }
         }
       } else {
         reject({
           status: "error",
-          messag: "Awesome code is yet to be written, sorry"
+          messag: "Awesome code is yet to be written, sorry (config not found)"
         })
       }
+      // write changes to file
+      fs.writeFile("db/user.json", JSON.stringify(userArray, null, 2), err => {
+        if (err) {
+          reject({
+            status: "error",
+            message: "Failed to write to file"
+          })
+        }
+        resolve({
+          status: "success",
+          message: "Updated config successfully"
+        })
+      })
     })
+  },
+  saveConfig(decodedToken, configname, data) {
+    // read old data from users json
+    let oldConfig = module.exports.getUserConfig(configname, decodedToken)
+
+    if (!oldConfig)
+      return { status: "error", message: "Could not get old config" }
+
+    if (JSON.stringify(oldConfig) == JSON.stringify(data))
+      return { status: "error", message: "No changes found" }
+
+    // read users data
+    var userArray = JSON.parse(fs.readFileSync("./db/user.json"))
+
+    //TODO find a way to do this recursively for every config
+    if (configname == "coinbaseconfig") {
+      for (let i = 0; i < userArray.length; i++) {
+        if (userArray[i].username == decodedToken.username) {
+          userArray[i].coinbaseconfig.useSandbox = data.useSandbox
+          userArray[i].coinbaseconfig.sandbox.apikey = data.sandbox.apikey
+          userArray[i].coinbaseconfig.sandbox.passphrase =
+            data.sandbox.passphrase
+          userArray[i].coinbaseconfig.sandbox.secret = data.sandbox.secret
+          userArray[i].coinbaseconfig.production.apikey = data.production.apikey
+          userArray[i].coinbaseconfig.production.passphrase =
+            data.production.passphrase
+          userArray[i].coinbaseconfig.production.secret = data.production.secret
+
+          // lets pretend you didn't see that
+        }
+      }
+    } else if (configname == "workerData") {
+      // make workerData changes
+      for (let i = 0; i < userArray.length; i++) {
+        if (userArray[i].username == decodedToken.username) {
+          userArray[i].workerData.status = data.status
+        }
+      }
+    } else {
+      return {
+        status: "error",
+        messag: "Awesome code is yet to be written, sorry (config not found)"
+      }
+    }
+    // write changes to file
+    fs.writeFile("db/user.json", JSON.stringify(userArray, null, 2), err => {
+      if (err) {
+        return {
+          status: "error",
+          message: "Failed to write to file"
+        }
+      }
+      return {
+        status: "success",
+        message: "Updated config successfully"
+      }
+    })
+  },
+  addLogEntry(message) {
+    var log = module.exports.getTimestamp() + " > " + message
+    console.log(log)
+  },
+  getTimestamp() {
+    return moment(new Date()).format("YYYY-MM-DD HH:mm:ss")
+  },
+  generateID() {
+    var result = ""
+    var characters =
+      "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    var charactersLength = characters.length
+    for (var i = 0; i < length; i++) {
+      result += characters.charAt(Math.floor(Math.random() * charactersLength))
+    }
+    return result
   }
 }

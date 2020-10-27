@@ -271,10 +271,11 @@ export default {
 .cont {
   margin-left: 2%;
   margin-right: 2%;
-  margin-top: 4%;
+  margin-top: 2%;
 }
 .textColor {
   color: var(--v-primary-base);
+  word-break: break-word;
 }
 .contbottom {
   margin-left: 2%;

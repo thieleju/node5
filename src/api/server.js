@@ -10,7 +10,8 @@ const { config } = require("dotenv")
 config({ path: __dirname + "../../../.env" })
 
 // helper functions
-var hf = require("./helpers")
+var helpers = require("./helpers")
+var coinbaseHelpers = require("./coinbaseHelpers")
 
 app.use(cors())
 app.use(bodyParser.json())
@@ -21,7 +22,7 @@ app.get("/", (req, res) => {
   })
 })
 
-app.get("/apps", hf.verifyToken, (req, res) => {
+app.get("/apps", helpers.verifyToken, (req, res) => {
   jwt.verify(req.token, process.env.VUE_APP_SECRET_KEY, err => {
     if (err) {
       res.json(err)
@@ -32,12 +33,12 @@ app.get("/apps", hf.verifyToken, (req, res) => {
   })
 })
 
-app.get("/config/:configname", hf.verifyToken, (req, res) => {
+app.get("/config/:configname", helpers.verifyToken, (req, res) => {
   jwt.verify(req.token, process.env.VUE_APP_SECRET_KEY, (err, decoded) => {
     if (err) {
       res.json(err)
     } else {
-      const config = hf.getUserConfig(req.params.configname, decoded)
+      const config = helpers.getUserConfig(req.params.configname, decoded)
       if (config) {
         res.json(config)
       } else {
@@ -47,7 +48,7 @@ app.get("/config/:configname", hf.verifyToken, (req, res) => {
   })
 })
 
-app.get("/checkauth", hf.verifyToken, (req, res) => {
+app.get("/checkauth", helpers.verifyToken, (req, res) => {
   jwt.verify(req.token, process.env.VUE_APP_SECRET_KEY, (err, decoded) => {
     if (err) {
       res.sendStatus(401)
@@ -77,12 +78,13 @@ app.get("/favicon.ico", (req, res) => {
   }
 })
 
-app.post("/saveSettings", hf.verifyToken, (req, res) => {
+app.post("/saveSettings", helpers.verifyToken, (req, res) => {
   jwt.verify(req.token, process.env.VUE_APP_SECRET_KEY, (err, decoded) => {
     if (err) {
       res.sendStatus(401)
     } else {
-      hf.doSaveConfig(req, res, decoded, "coinbaseconfig")
+      helpers
+        .doSaveConfig(req, res, decoded, "coinbaseconfig")
         .then(data => {
           res.status(200).json({
             status: data.status,
@@ -100,7 +102,8 @@ app.post("/saveSettings", hf.verifyToken, (req, res) => {
 })
 
 app.post("/register", (req, res) => {
-  hf.doRegister(req, res)
+  helpers
+    .doRegister(req, res)
     .then(data => {
       res.status(200).json({
         status: data.status,
@@ -116,7 +119,8 @@ app.post("/register", (req, res) => {
 })
 
 app.post("/login", (req, res) => {
-  hf.doLogin(req, res)
+  helpers
+    .doLogin(req, res)
     .then(data => {
       res.status(200).json({
         token: data.token,
@@ -132,6 +136,30 @@ app.post("/login", (req, res) => {
         message: error.message
       })
     })
+})
+
+app.get("/coinbaseWorker", helpers.verifyToken, (req, res) => {
+  jwt.verify(req.token, process.env.VUE_APP_SECRET_KEY, (err, decoded) => {
+    if (err) {
+      res.sendStatus(401)
+    } else {
+      coinbaseHelpers
+        .checkWorker(decoded)
+        .then(data => {
+          res.status(200).json({
+            status: data.status,
+            message: data.message,
+            workerData: data.workerData
+          })
+        })
+        .catch(error => {
+          res.status(200).json({
+            status: error.status,
+            message: error.message
+          })
+        })
+    }
+  })
 })
 
 // start server

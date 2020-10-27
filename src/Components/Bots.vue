@@ -49,7 +49,19 @@
 </template>
 
 <script>
-export default {}
+import axios from "axios"
+
+export default {
+  data() {
+    return {}
+  },
+  created() {
+    axios.get(this.$store.getters.getAPIUrl + "/coinbaseWorker").then(data => {
+      // init config
+      console.log(data)
+    })
+  }
+}
 </script>
 
 <style lang="css" scoped>
