@@ -25,7 +25,7 @@ parentPort.on("message", message => {
       stopMe()
       break
     default:
-      sendResponse("status", workerData.status)
+      sendResponse("status", "online")
   }
 })
 
