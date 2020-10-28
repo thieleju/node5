@@ -14,7 +14,7 @@ const {
 const { config } = require("dotenv")
 config({ path: __dirname + "/.env" })
 
-var helpers = require("./helpers")
+var serverHelper = require("./serverHelper")
 
 var allWorkers = []
 var workerIDLength = 12
@@ -22,15 +22,15 @@ var workerIDLength = 12
 module.exports = {
   /**
    * This function gets only called from the server
-   * @param {JSON} decodedToken jwt.verify decoded Token Object
+   * @param {String} username jwt.verify decoded Token username
    * @return {Promise} returns promise, which resolves/rejects JSON
    */
-  checkWorker(decodedToken) {
+  checkWorker(username) {
     return new Promise((resolve, reject) => {
-      var helpers = require("./helpers") // why do I need this?
+      var serverHelper = require("./serverHelper") // why do I need this?
 
       // get worker data and status
-      let workerData = helpers.getUserConfig("workerData", decodedToken)
+      let workerData = serverHelper.getUserConfig("workerData", username)
 
       if (!workerData)
         throw new Error({
@@ -38,10 +38,13 @@ module.exports = {
           message: "Could not read worker Data"
         })
 
+      // add username to workerData
+      workerData.username = username
+
       // check if worker is running => 1 worker per user
       if (
         module.exports.checkIfWorkerIsAlreadyRunning(
-          decodedToken,
+          username,
           workerData.workerID
         )
       ) {
@@ -55,10 +58,7 @@ module.exports = {
         // worker offline
 
         // initialize worker
-        var worker = module.exports.startWorker(decodedToken, workerData)
-
-        // add workerdata to allWorkers array to keep track of everything
-        allWorkers.push(worker)
+        module.exports.startWorker(username, workerData)
 
         // resolve starting message
         resolve({
@@ -69,28 +69,33 @@ module.exports = {
       }
     })
   },
-  startWorker(decodedToken, workerData) {
-    var helpers = require("./helpers") // why do I need this?
-    // create new worker Data Object
-    let newWorkerData = {
-      username: decodedToken.username,
-      workerData
-    }
+  startWorker(username, workerData) {
+    var serverHelper = require("./serverHelper") // why do I need this?
 
     // create worker object
-    const worker = new Worker("./src/api/coinbaseWorker.js", newWorkerData)
+    const worker = new Worker("./src/api/coinbaseWorker.js", { workerData })
 
     // worker listeners
     worker.on("message", data => {
       // worker gives feedback
 
-      if (data.type == "startup") {
-        // change status to online and save
-        workerData.status = "online"
-        helpers.saveConfig(decodedToken, "workerData", workerData)
+      switch (data.type) {
+        case "startup":
+          // change status to online and save
+          workerData.status = "online"
+          serverHelper.saveConfig(data.username, "workerData", workerData)
+          serverHelper.addLogEntry(username, "Started worker " + data.workerID)
+          break
+        case "shutdown":
+          // shuts down worker
+          serverHelper.addLogEntry(
+            data.username,
+            "Stopped worker " + data.workerID
+          )
+          break
+        default:
+          console.log(data)
       }
-
-      console.log(data)
     })
 
     worker.on("error", error => {
@@ -103,28 +108,24 @@ module.exports = {
       console.log("Exited with code " + exitCode)
     })
 
-    // add workerdata to allWorkers array to keep track
-    return newWorkerData
+    // add workerdata to allWorkers array to keep track of everything
+    allWorkers.push(workerData)
   },
   /**
    * Initialize client with userspecific config
-   * @param {JSON} decodedToken decoded jwt token with username and token property
+   * @param {String} username decoded jwt token with username and token property
    * @return {CoinbasePro} client
    */
-  initClient(decodedToken) {
-    helpers.addLogEntry("Initializing Coinbase PRO ...")
-
-    var config = helpers.getUserConfig("coinbaseconfig", decodedToken)
+  initClient(username) {
+    var serverHelper = require("./serverHelper")
+    var config = serverHelper.getUserConfig("coinbaseconfig", username)
 
     if (!config) {
-      throw new Error({
-        status: "error",
-        message: "could not initialize config"
-      })
+      return null
     }
 
     if (config.useSandbox === true) {
-      helpers.addLogEntry("Initialized Coinbase Pro SANDBOX")
+      serverHelper.addLogEntry(username, "Initialized Coinbase Pro SANDBOX")
       return new CoinbasePro({
         apiKey: config.sandbox.apiKey,
         apiSecret: config.sandbox.secret,
@@ -132,7 +133,10 @@ module.exports = {
         useSandbox: true
       })
     } else if (config.useSandbox === false) {
-      helpers.addLogEntry("Initialized Coinbase Pro LIVE TRADING")
+      serverHelper.addLogEntry(
+        username,
+        "Initialized Coinbase Pro LIVE TRADING"
+      )
       return new CoinbasePro({
         apiKey: config.production.apiKey,
         apiSecret: config.production.secret,
@@ -140,23 +144,17 @@ module.exports = {
         useSandbox: false
       })
     } else {
-      throw new Error({
-        status: "error",
-        message: "could not read sandbox property"
-      })
+      return null
     }
   },
   getWorkerIDLength() {
     return this.workerIDLength
   },
-  checkIfWorkerIsAlreadyRunning(decodedToken, workerID) {
+  checkIfWorkerIsAlreadyRunning(username, workerID) {
     let matchingWorkerFound = false
-    if (!allWorkers.length < 1) {
+    if (allWorkers.length >= 1) {
       allWorkers.forEach(el => {
-        if (
-          el.username == decodedToken.username &&
-          workerID == el.workerData.workerID
-        ) {
+        if (el.username == username && workerID == el.workerID) {
           matchingWorkerFound = true
         }
       })

@@ -56,10 +56,9 @@ export default {
     return {}
   },
   created() {
-    axios.get(this.$store.getters.getAPIUrl + "/coinbaseWorker").then(data => {
-      // init config
-      console.log(data)
-    })
+    axios
+      .get(this.$store.getters.getAPIUrl + "/coinbaseWorker")
+      .then(data => {})
   }
 }
 </script>

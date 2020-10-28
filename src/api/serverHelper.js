@@ -1,12 +1,13 @@
 const crypto = require("crypto-js")
 const jwt = require("jsonwebtoken")
 const fs = require("fs")
+const moment = require("moment")
 
 // get secret information from .env
 const { config } = require("dotenv")
 config({ path: __dirname + "/.env" })
 
-var coinbaseHelpers = require("./coinbaseHelpers")
+var workerHelper = require("./workerHelper")
 
 module.exports = {
   doRegister(req, res) {
@@ -24,9 +25,7 @@ module.exports = {
         password: pwd,
         activated: false,
         workerData: {
-          workerID: module.exports.generateID(
-            coinbaseHelpers.getWorkerIDLength()
-          ),
+          workerID: module.exports.generateID(workerHelper.getWorkerIDLength()),
           status: "offline",
           timeBetweenChecksInS: 30
         },
@@ -128,21 +127,13 @@ module.exports = {
       res.sendStatus(401)
     }
   },
-  isTokenUserCurrentUser(decodedToken, username) {
-    JSON.parse(fs.readFileSync("./db/user.json")).forEach(() => {
-      if (decodedToken.username === username) {
-        return true
-      }
-    })
-    return false
-  },
-  getUserConfig(configName, decodedToken) {
+  getUserConfig(configName, username) {
     // read user data
     var users = JSON.parse(fs.readFileSync("./db/user.json"))
     // loop through users to check if current signed in user matches
     var userData = null
     users.forEach(user => {
-      if (decodedToken.username == user.username) {
+      if (username == user.username) {
         userData = user[configName]
       }
     })
@@ -153,13 +144,13 @@ module.exports = {
       return null
     }
   },
-  doSaveConfig(req, res, decodedToken, configname) {
+  doSaveConfig(req, res, username, configname) {
     return new Promise((resolve, reject) => {
       if (!req.body || !req.body.coinbaseconfig) {
         reject({ status: "error", message: "Failed to receive data" })
         return
       }
-      let oldConfig = module.exports.getUserConfig(configname, decodedToken)
+      let oldConfig = module.exports.getUserConfig(configname, username)
       let data = req.body.coinbaseconfig
 
       if (!oldConfig) {
@@ -181,7 +172,7 @@ module.exports = {
       //TODO find a way to do this recursively for every config
       if (configname == "coinbaseconfig") {
         for (let i = 0; i < userArray.length; i++) {
-          if (userArray[i].username == decodedToken.username) {
+          if (userArray[i].username == username) {
             userArray[i].coinbaseconfig.useSandbox = data.useSandbox
             userArray[i].coinbaseconfig.sandbox.apikey = data.sandbox.apikey
             userArray[i].coinbaseconfig.sandbox.passphrase =
@@ -200,7 +191,7 @@ module.exports = {
       } else if (configname == "workerData") {
         // make workerData changes
         for (let i = 0; i < userArray.length; i++) {
-          if (userArray[i].username == decodedToken.username) {
+          if (userArray[i].username == username) {
             userArray[i].workerData.status = data.status
           }
         }
@@ -225,9 +216,9 @@ module.exports = {
       })
     })
   },
-  saveConfig(decodedToken, configname, data) {
+  saveConfig(username, configname, data) {
     // read old data from users json
-    let oldConfig = module.exports.getUserConfig(configname, decodedToken)
+    let oldConfig = module.exports.getUserConfig(configname, username)
 
     if (!oldConfig)
       return { status: "error", message: "Could not get old config" }
@@ -241,7 +232,7 @@ module.exports = {
     //TODO find a way to do this recursively for every config
     if (configname == "coinbaseconfig") {
       for (let i = 0; i < userArray.length; i++) {
-        if (userArray[i].username == decodedToken.username) {
+        if (userArray[i].username == username) {
           userArray[i].coinbaseconfig.useSandbox = data.useSandbox
           userArray[i].coinbaseconfig.sandbox.apikey = data.sandbox.apikey
           userArray[i].coinbaseconfig.sandbox.passphrase =
@@ -258,7 +249,7 @@ module.exports = {
     } else if (configname == "workerData") {
       // make workerData changes
       for (let i = 0; i < userArray.length; i++) {
-        if (userArray[i].username == decodedToken.username) {
+        if (userArray[i].username == username) {
           userArray[i].workerData.status = data.status
         }
       }
@@ -282,8 +273,8 @@ module.exports = {
       }
     })
   },
-  addLogEntry(message) {
-    var log = module.exports.getTimestamp() + " > " + message
+  addLogEntry(user, message) {
+    var log = module.exports.getTimestamp() + " | " + user + " > " + message
     console.log(log)
   },
   getTimestamp() {
