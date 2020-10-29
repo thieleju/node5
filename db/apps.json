@@ -7,10 +7,15 @@
     },
     {
         "id": 1,
-        "title": "Trading Bots",
+        "title": "Portfolio",
+        "component": "portfolio",
+        "icon" : "mdi-purse-outline"
+    },
+    {
+        "id": 2,
+        "title": "Trading",
         "component": "bots",
-        "icon" : "mdi-chart-line",
-        "currencies": ["EUR","BTC"]
+        "icon" : "mdi-chart-line"
     },
     {
         "id": 20,

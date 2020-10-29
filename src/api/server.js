@@ -12,6 +12,7 @@ config({ path: __dirname + "../../../.env" })
 // helper functions
 var serverHelper = require("./serverHelper")
 var workerHelper = require("./workerHelper")
+var coinbaseHelper = require("./coinbaseHelper")
 
 app.use(cors())
 app.use(bodyParser.json())
@@ -160,6 +161,50 @@ app.get("/coinbaseWorker", serverHelper.verifyToken, (req, res) => {
             status: error.status,
             message: error.message
           })
+        })
+    }
+  })
+})
+
+app.get("/getAccountList", serverHelper.verifyToken, (req, res) => {
+  jwt.verify(req.token, process.env.VUE_APP_SECRET_KEY, (err, decoded) => {
+    if (err) {
+      res.sendStatus(401)
+    } else {
+      const client = coinbaseHelper.initClient(decoded.username, false)
+      client.rest.account
+        .listAccounts()
+        .then(accounts => {
+          res.json({
+            status: "success",
+            message: "Received Account List Data",
+            accounts
+          })
+        })
+        .catch(() => {
+          res.json({
+            status: "error",
+            message:
+              "Could not get Account List Data! Please check your coinbase api settings!"
+          })
+        })
+    }
+  })
+})
+
+app.get("/getMarketPrice/:product", serverHelper.verifyToken, (req, res) => {
+  jwt.verify(req.token, process.env.VUE_APP_SECRET_KEY, (err, decoded) => {
+    if (err) {
+      res.sendStatus(401)
+    } else {
+      const client = coinbaseHelper.initClient(decoded.username, false)
+      coinbaseHelper
+        .doGetMarketPrice(req, res, client)
+        .then(data => {
+          res.json(data)
+        })
+        .catch(error => {
+          res.json(error)
         })
     }
   })

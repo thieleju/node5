@@ -1,20 +1,11 @@
 var moment = require("moment")
 var axios = require("axios")
-const { Worker } = require("worker_threads")
 
-const {
-  CoinbasePro,
-  CandleGranularity,
-  FeeUtil,
-  OrderSide,
-  OrderType
-} = require("coinbase-pro-node")
+const { Worker } = require("worker_threads")
 
 // get secret information from .env
 const { config } = require("dotenv")
 config({ path: __dirname + "/.env" })
-
-var serverHelper = require("./serverHelper")
 
 var allWorkers = []
 var workerIDLength = 12
@@ -88,11 +79,12 @@ module.exports = {
           break
         case "shutdown":
           // shuts down worker
+          workerData.status = "offline"
+          serverHelper.saveConfig(data.username, "workerData", workerData)
           serverHelper.addLogEntry(
             data.username,
             "Stopped worker " + data.workerID
           )
-          break
         default:
           console.log(data)
       }
@@ -105,47 +97,11 @@ module.exports = {
 
     worker.on("exit", exitCode => {
       // worker exited
-      console.log("Exited with code " + exitCode)
+      console.log("Worker exited with code " + exitCode)
     })
 
     // add workerdata to allWorkers array to keep track of everything
     allWorkers.push(workerData)
-  },
-  /**
-   * Initialize client with userspecific config
-   * @param {String} username decoded jwt token with username and token property
-   * @return {CoinbasePro} client
-   */
-  initClient(username) {
-    var serverHelper = require("./serverHelper")
-    var config = serverHelper.getUserConfig("coinbaseconfig", username)
-
-    if (!config) {
-      return null
-    }
-
-    if (config.useSandbox === true) {
-      serverHelper.addLogEntry(username, "Initialized Coinbase Pro SANDBOX")
-      return new CoinbasePro({
-        apiKey: config.sandbox.apiKey,
-        apiSecret: config.sandbox.secret,
-        passphrase: config.sandbox.passphrase,
-        useSandbox: true
-      })
-    } else if (config.useSandbox === false) {
-      serverHelper.addLogEntry(
-        username,
-        "Initialized Coinbase Pro LIVE TRADING"
-      )
-      return new CoinbasePro({
-        apiKey: config.production.apiKey,
-        apiSecret: config.production.secret,
-        passphrase: config.production.passphrase,
-        useSandbox: false
-      })
-    } else {
-      return null
-    }
   },
   getWorkerIDLength() {
     return this.workerIDLength

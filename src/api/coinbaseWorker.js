@@ -1,24 +1,35 @@
 const axios = require("axios")
 const { workerData, parentPort } = require("worker_threads")
 
-var serverHelper = require("./serverHelper")
-var workerHelper = require("./workerHelper")
+const serverHelper = require("./serverHelper")
+const workerHelper = require("./workerHelper")
+const coinbaseHelper = require("./coinbaseHelper")
 
 var counter = 0
 var interval = workerData.timeBetweenChecksInS * 1000
+var allAccountsArray = []
 
 // initialize
-const client = workerHelper.initClient(workerData.username)
+const client = coinbaseHelper.initClient(workerData.username, true)
 if (!client) {
   console.log(workerData)
   stopMe()
+} else {
+  // verify worker started correctly
+  sendResponse("startup", "Worker started")
+  // get Account list
+  client.rest.account
+    .listAccounts()
+    .then(data => {
+      allAccountsArray = data
+    })
+    .catch(error => {
+      stopMe()
+    })
 }
 
-// verify worker started correctly
-sendResponse("startup", "Worker started")
-
 // set interval with updateWorker() callback
-var intervalID = setInterval(() => {
+const intervalID = setInterval(() => {
   // increase Counter
   counter++
   // update worker
@@ -61,4 +72,10 @@ function sendResponse(type, msg) {
   workerData.message = msg
 
   parentPort.postMessage(workerData)
+}
+
+module.exports = {
+  getClientObject() {
+    return client
+  }
 }
