@@ -11,6 +11,10 @@
             Watch your accounts balances
           </v-card-subtitle>
 
+          <v-card-title class="text-xl-h4 textColor">
+            {{ portfolioSum }}
+          </v-card-title>
+
           <!-- <v-card-text color="primary"> -->
           <v-tabs v-model="tab" background-color="secondary">
             <v-tabs-slider color="accent"></v-tabs-slider>
@@ -54,6 +58,7 @@ export default {
       selectedAccount: null,
       accounts: null,
       loading: true,
+      portfolioSum: "loading ...",
       tableData: {
         sortBy: "holdings",
         sortDesc: true,
@@ -111,16 +116,15 @@ export default {
 
       accounts.forEach(el => {
         if (el.currency == mainCurrency) {
-          console.log(el.balance)
           mainCurrencyBalance = el.balance
         }
       })
       let accountsOver0 = accounts.filter(
         acc => acc.available > 0 && acc.currency != mainCurrency
       )
-      // let accountsAt0 = accounts.filter(
-      //   acc => acc.available == 0 && acc.currency != mainCurrency
-      // )
+      let accountsAt0 = accounts.filter(
+        acc => acc.available == 0 && acc.currency != mainCurrency
+      )
 
       //  get all promises for holdings calculation
       accountsOver0.forEach(acc => {
@@ -179,8 +183,10 @@ export default {
         })
         // finally set items
         this.tableData.items = newData
+        this.portfolioSum = sumOfBalances.toFixed(2) + "€"
         // disable loading bar
         this.loading = false
+        console.log(accountsAt0)
       })
     }
   }
