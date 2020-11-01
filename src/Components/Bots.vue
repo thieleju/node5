@@ -27,7 +27,7 @@
             Switch between your trading pairs
           </v-card-subtitle>
         </v-card>
-        <v-list>
+        <v-list nav dark>
           <v-list-item-group>
             <v-list-item v-for="account in accounts" :key="account.id">
               <v-list-item-icon>
@@ -51,20 +51,34 @@
 import axios from "axios"
 
 export default {
+  // TODO add tabs to show Candlestick graph / BOTS
   data() {
     return {
       selectedAccount: null,
-      accounts: null
+      accounts: null,
+      loading: true,
+      mainCurrency: "EUR",
+      selectedPair: null
     }
   },
   created() {
-    axios
-      .get(this.$store.getters.getAPIUrl + "/coinbaseWorker")
-      .then(data => {})
-
+    // start worker / get update
+    axios.get(this.$store.getters.getAPIUrl + "/coinbaseWorker").then(data => {
+      console.log(data.data)
+      // TODO v-alert with status message?
+    })
     // init account list
     axios.get(this.$store.getters.getAPIUrl + "/getAccountList").then(data => {
-      this.accounts = data.data.filter(account => account.balance > 0)
+      if (data.data.status == "success") {
+        var newData = data.data.accounts.filter(
+          el => el.available > 0 && el.currency != this.mainCurrency
+        )
+        newData.forEach(el => {
+          el.currency += "-" + this.mainCurrency
+        })
+        this.accounts = newData
+      }
+      this.loading = false
     })
   }
 }
@@ -81,7 +95,7 @@ export default {
   margin-left: 2%;
   margin-right: 2%;
   margin-top: 2%;
-  max-width: 40vh;
+  max-width: 30vh;
 }
 .textColor {
   color: var(--v-primary-base);

@@ -13,7 +13,7 @@
     },
     {
         "id": 2,
-        "title": "Trading",
+        "title": "Bots",
         "component": "bots",
         "icon" : "mdi-chart-line"
     },

@@ -186,7 +186,7 @@ export default {
         this.portfolioSum = sumOfBalances.toFixed(2) + "€"
         // disable loading bar
         this.loading = false
-        console.log(accountsAt0)
+        // console.log(accountsAt0)
       })
     }
   }
