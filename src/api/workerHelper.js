@@ -42,7 +42,7 @@ module.exports = {
         // worker online
         resolve({
           status: workerData.status,
-          message: "Worker is online!",
+          message: "Worker is " + workerData.status,
           workerData
         })
       } else {
@@ -54,7 +54,7 @@ module.exports = {
         // resolve starting message
         resolve({
           status: workerData.status,
-          message: "Worker with ID " + workerData.workerID + "is starting ...",
+          message: "Worker is starting ...",
           workerData
         })
       }

@@ -23,7 +23,7 @@ if (!client) {
     .then(data => {
       allAccountsArray = data
     })
-    .catch(error => {
+    .catch(() => {
       stopMe()
     })
 }

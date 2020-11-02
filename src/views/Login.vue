@@ -92,7 +92,7 @@ export default {
         padding: "1.3rem",
         timer: 800,
         timerProgressBar: false,
-        onClose: toast => {
+        willClose: toast => {
           this.$router.push({ name: "dashboard" })
         }
       }).fire({
@@ -108,7 +108,7 @@ export default {
         showConfirmButton: false,
         timer: 1200,
         timerProgressBar: false
-        // onClose: (toast) => {}
+        // willClose: (toast) => {}
       }).fire({
         icon: "error",
         title: message

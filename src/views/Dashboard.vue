@@ -16,6 +16,20 @@
         </v-list-item>
       </v-list>
       <v-list dense>
+        <v-list-item>
+          <v-list-item-content>
+            <v-alert
+              dense
+              elevation="2"
+              outlined
+              :type="alert.type"
+              style="margin:0px; margin-bottom: 6px"
+            >
+              {{ alert.text }}
+            </v-alert>
+          </v-list-item-content>
+        </v-list-item>
+        <v-divider></v-divider>
         <v-list-item
           link
           v-for="app in apps"
@@ -67,6 +81,11 @@ export default {
         currentTitle: null,
         currentComponent: null
       },
+      alert: {
+        text: "loading ...",
+        type: "warning",
+        timerIntervalInS: 6
+      },
       drawer: true,
       apps: null,
       chevron: "mdi-chevron-left"
@@ -84,6 +103,10 @@ export default {
       // init component
       this.setComponent(data.data[0].component, data.data[0].title)
     })
+
+    // start worker / get update
+    this.updateAlert()
+    setInterval(() => this.updateAlert(), this.alert.timerIntervalInS * 1000)
   },
   methods: {
     setComponent(comp, title) {
@@ -101,6 +124,22 @@ export default {
       } else if (state === "right") {
         this.chevron = "mdi-chevron-right"
       }
+    },
+    updateAlert() {
+      axios
+        .get(this.$store.getters.getAPIUrl + "/coinbaseWorker")
+        .then(data => {
+          if (data.data.status == "online") {
+            this.alert.text = data.data.message
+            this.alert.type = "success"
+          } else {
+            this.alert.text = data.data.message
+            this.alert.type = "error"
+          }
+        })
+        .catch(error => {
+          ;(this.alert.text = "Can't reach API"), (this.alert.type = "error")
+        })
     }
   },
   watch: {

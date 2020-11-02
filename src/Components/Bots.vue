@@ -26,22 +26,27 @@
           <v-card-subtitle>
             Switch between your trading pairs
           </v-card-subtitle>
-        </v-card>
-        <v-list nav dark>
-          <v-list-item-group>
-            <v-list-item v-for="account in accounts" :key="account.id">
-              <v-list-item-icon>
-                <v-icon></v-icon>
-              </v-list-item-icon>
 
-              <v-list-item-content>
-                <v-list-item-title
-                  v-text="account.currency"
-                ></v-list-item-title>
-              </v-list-item-content>
-            </v-list-item>
-          </v-list-item-group>
-        </v-list>
+          <v-list nav dark class="textColor secondaryBackground">
+            <v-list-item-group mandatory>
+              <v-list-item
+                v-for="account in accounts"
+                :key="account.id"
+                @click="tradingPairClicked(account.currency)"
+              >
+                <v-list-item-icon>
+                  <v-icon></v-icon>
+                </v-list-item-icon>
+
+                <v-list-item-content>
+                  <v-list-item-title
+                    v-text="account.currency"
+                  ></v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
+            </v-list-item-group>
+          </v-list>
+        </v-card>
       </v-flex>
     </v-layout>
   </v-container>
@@ -54,7 +59,6 @@ export default {
   // TODO add tabs to show Candlestick graph / BOTS
   data() {
     return {
-      selectedAccount: null,
       accounts: null,
       loading: true,
       mainCurrency: "EUR",
@@ -62,11 +66,6 @@ export default {
     }
   },
   created() {
-    // start worker / get update
-    axios.get(this.$store.getters.getAPIUrl + "/coinbaseWorker").then(data => {
-      console.log(data.data)
-      // TODO v-alert with status message?
-    })
     // init account list
     axios.get(this.$store.getters.getAPIUrl + "/getAccountList").then(data => {
       if (data.data.status == "success") {
@@ -80,6 +79,11 @@ export default {
       }
       this.loading = false
     })
+  },
+  methods: {
+    tradingPairClicked(pair) {
+      console.log({ pair })
+    }
   }
 }
 </script>
@@ -100,5 +104,8 @@ export default {
 .textColor {
   color: var(--v-primary-base);
   word-break: break-word;
+}
+.secondaryBackground {
+  background: var(--v-secondary-base);
 }
 </style>

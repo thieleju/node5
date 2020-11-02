@@ -12,7 +12,7 @@
           </v-card-subtitle>
 
           <v-card-title class="text-xl-h4 textColor">
-            {{ portfolioSum }}
+            ~ {{ portfolioSum }}
           </v-card-title>
 
           <!-- <v-card-text color="primary"> -->
