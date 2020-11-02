@@ -4,16 +4,8 @@
       <v-flex class="leftCont">
         <v-card color="secondary" elevation="3" dark>
           <v-card-title class="headline textColor">
-            Node5 App
+            {{ pairs.selected }}
           </v-card-title>
-
-          <v-card-subtitle>
-            Subtitle
-          </v-card-subtitle>
-
-          <v-card-text>
-            This is Card Text
-          </v-card-text>
         </v-card>
       </v-flex>
 
@@ -30,12 +22,16 @@
           <v-list nav dark class="textColor secondaryBackground">
             <v-list-item-group mandatory>
               <v-list-item
-                v-for="account in accounts"
+                v-for="account in pairs.accounts"
                 :key="account.id"
                 @click="tradingPairClicked(account.currency)"
               >
                 <v-list-item-icon>
-                  <v-icon></v-icon>
+                  <v-icon>
+                    mdi-currency-{{
+                      account.currency.split("-")[0].toLowerCase()
+                    }}
+                  </v-icon>
                 </v-list-item-icon>
 
                 <v-list-item-content>
@@ -54,15 +50,19 @@
 
 <script>
 import axios from "axios"
+import { GChart } from "vue-google-charts"
 
 export default {
-  // TODO add tabs to show Candlestick graph / BOTS
+  components: {
+    // GChart
+  },
   data() {
     return {
-      accounts: null,
-      loading: true,
-      mainCurrency: "EUR",
-      selectedPair: null
+      pairs: {
+        accounts: null,
+        mainCurrency: "EUR",
+        selected: ""
+      }
     }
   },
   created() {
@@ -70,19 +70,19 @@ export default {
     axios.get(this.$store.getters.getAPIUrl + "/getAccountList").then(data => {
       if (data.data.status == "success") {
         var newData = data.data.accounts.filter(
-          el => el.available > 0 && el.currency != this.mainCurrency
+          el => el.available > 0 && el.currency != this.pairs.mainCurrency
         )
         newData.forEach(el => {
-          el.currency += "-" + this.mainCurrency
+          el.currency += "-" + this.pairs.mainCurrency
         })
-        this.accounts = newData
+        this.pairs.accounts = newData
+        this.pairs.selected = newData[0].currency
       }
-      this.loading = false
     })
   },
   methods: {
     tradingPairClicked(pair) {
-      console.log({ pair })
+      this.pairs.selected = pair
     }
   }
 }

@@ -37,7 +37,11 @@
                 :sort-desc.sync="tableData.sortDesc"
                 :loading="loading"
                 loading-text="Loading items ..."
-              ></v-data-table>
+              >
+                <template v-slot:item.icon="{ item }">
+                  <v-icon>{{ item.icon }}</v-icon>
+                </template>
+              </v-data-table>
             </v-tab-item>
             <v-tab-item> </v-tab-item>
           </v-tabs-items>
@@ -64,7 +68,7 @@ export default {
         sortDesc: true,
         headers: [
           {
-            text: "",
+            text: "icon",
             align: "start",
             sortable: false,
             value: "icon"
@@ -154,6 +158,9 @@ export default {
 
         // loop through currencies in newData and assign values
         for (let i = 0; i < newData.length; i++) {
+          // icon
+          newData[i]["icon"] =
+            "mdi-currency-" + newData[i]["currency"].toLowerCase()
           newData[i]["available"] = accountsOver0[i].available
           // calculate balance
           let balance =
@@ -172,6 +179,7 @@ export default {
         }
         // add main currency
         newData.push({
+          icon: "mdi-currency-" + mainCurrency.toLowerCase(),
           currency: mainCurrency,
           available: mainCurrencyBalance,
           lastClosingPrice: "---",
