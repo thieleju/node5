@@ -108,6 +108,7 @@ export default {
         this.tableData.items = this.buildDataTablesData(data.data.accounts)
       } else {
         this.loading = false
+        this.portfolioSum = "Not connected to coinbase!"
       }
     })
   },
