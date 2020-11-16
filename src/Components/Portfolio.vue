@@ -149,10 +149,17 @@ export default {
         // get lastClosingPrice from data and build new data array
         let newData = []
         data.forEach(data => {
-          newData.push({
-            currency: data.data.product.split("-")[0],
-            lastClosingPrice: data.data.lastClosingPrice
-          })
+          if (data.data.status === "success") {
+            newData.push({
+              currency: data.data.product.split("-")[0],
+              lastClosingPrice: data.data.lastClosingPrice
+            })
+          } else {
+            newData.push({
+              currency: "error",
+              lastClosingPrice: 0
+            })
+          }
         })
         // sum of balances
         let sumOfBalances = Number(mainCurrencyBalance)
