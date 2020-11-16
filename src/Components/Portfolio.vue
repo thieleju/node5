@@ -56,6 +56,9 @@
 import axios from "axios"
 
 export default {
+  props: {
+    propData: Array
+  },
   data() {
     return {
       tab: null,
@@ -102,15 +105,7 @@ export default {
   },
   created() {
     // init account list
-    axios.get(this.$store.getters.getAPIUrl + "/getAccountList").then(data => {
-      if (data.data.status == "success") {
-        // build tableData object and
-        this.tableData.items = this.buildDataTablesData(data.data.accounts)
-      } else {
-        this.loading = false
-        this.portfolioSum = "Not connected to coinbase!"
-      }
-    })
+    this.buildDataTablesData(this.propData)
   },
   methods: {
     buildDataTablesData(accounts) {
@@ -119,17 +114,11 @@ export default {
       let mainCurrency = "EUR"
       let mainCurrencyBalance = 0
 
-      accounts.forEach(el => {
-        if (el.currency == mainCurrency) {
-          mainCurrencyBalance = el.balance
-        }
-      })
-      let accountsOver0 = accounts.filter(
-        acc => acc.available > 0 && acc.currency != mainCurrency
-      )
-      let accountsAt0 = accounts.filter(
-        acc => acc.available == 0 && acc.currency != mainCurrency
-      )
+      // filter eur
+      mainCurrencyBalance = accounts.filter(
+        el => el.currency === mainCurrency
+      )[0].balance
+      let accountsOver0 = accounts.filter(el => el.currency != mainCurrency)
 
       //  get all promises for holdings calculation
       accountsOver0.forEach(acc => {
@@ -169,7 +158,9 @@ export default {
           // icon
           newData[i]["icon"] =
             "mdi-currency-" + newData[i]["currency"].toLowerCase()
-          newData[i]["available"] = accountsOver0[i].available
+          newData[i]["available"] = Number(accountsOver0[i].available).toFixed(
+            roundToDigits
+          )
           // calculate balance
           let balance =
             Number(accountsOver0[i].balance) *
@@ -189,7 +180,7 @@ export default {
         newData.push({
           icon: "mdi-currency-" + mainCurrency.toLowerCase(),
           currency: mainCurrency,
-          available: mainCurrencyBalance,
+          available: Number(mainCurrencyBalance).toFixed(roundToDigits),
           lastClosingPrice: "---",
           balance: Number(mainCurrencyBalance).toFixed(roundToDigits),
           holdings: (
@@ -202,7 +193,6 @@ export default {
         this.portfolioSum = sumOfBalances.toFixed(2) + "€"
         // disable loading bar
         this.loading = false
-        // console.log(accountsAt0)
       })
     }
   }

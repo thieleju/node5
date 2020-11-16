@@ -142,7 +142,7 @@ app.post("/login", (req, res) => {
     })
 })
 
-app.get("/coinbaseWorker", serverHelper.verifyToken, (req, res) => {
+app.get("/checkWorker", serverHelper.verifyToken, (req, res) => {
   jwt.verify(req.token, process.env.VUE_APP_SECRET_KEY, (err, decoded) => {
     if (err) {
       res.sendStatus(401)
@@ -209,6 +209,8 @@ app.get("/getMarketPrice/:product", serverHelper.verifyToken, (req, res) => {
     }
   })
 })
+
+app.get("/getCandles")
 
 // start server
 app.listen(process.env.VUE_APP_SERVERPORT, () => {

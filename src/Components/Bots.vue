@@ -53,27 +53,25 @@ import axios from "axios"
 
 export default {
   components: {},
+  props: {
+    propData: Array
+  },
   data() {
     return {
       pairs: {
-        accounts: null,
+        accounts: [],
         mainCurrency: "EUR",
-        selected: ""
+        selected: "BTC-EUR"
       }
     }
   },
   created() {
     // init account list
-    axios.get(this.$store.getters.getAPIUrl + "/getAccountList").then(data => {
-      if (data.data.status == "success") {
-        var newData = data.data.accounts.filter(
-          el => el.available > 0 && el.currency != this.pairs.mainCurrency
-        )
-        newData.forEach(el => {
-          el.currency += "-" + this.pairs.mainCurrency
+    this.propData.forEach(acc => {
+      if (this.pairs.mainCurrency != acc.currency) {
+        this.pairs.accounts.push({
+          currency: acc.currency + "-" + this.pairs.mainCurrency
         })
-        this.pairs.accounts = newData
-        this.pairs.selected = newData[0].currency
       }
     })
   },

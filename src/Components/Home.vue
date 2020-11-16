@@ -24,6 +24,25 @@
             <v-menu open-on-hover top>
               <template v-slot:activator="{ on, attrs }">
                 <v-btn text color="accent" v-bind="attrs" v-on="on">
+                  {{ footer.pair.selected }}
+                </v-btn>
+              </template>
+              <v-list>
+                <v-list-item
+                  v-for="(item, index) in footer.pair.items"
+                  :key="index"
+                  link
+                  @click="updatefooterPair(item)"
+                >
+                  <v-list-item-title>
+                    {{ item.title }}
+                  </v-list-item-title>
+                </v-list-item>
+              </v-list>
+            </v-menu>
+            <v-menu open-on-hover top>
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn text color="accent" v-bind="attrs" v-on="on">
                   {{ footer.candles.selected }}
                 </v-btn>
               </template>
@@ -68,11 +87,15 @@
 </template>
 
 <script>
+import axios from "axios"
 import VueApexCharts from "vue-apexcharts"
 
 export default {
   components: {
     apexchart: VueApexCharts
+  },
+  props: {
+    propData: Array
   },
   data() {
     return {
@@ -369,6 +392,11 @@ export default {
         }
       },
       footer: {
+        pair: {
+          selected: "EUR-BTC",
+          mainCurrency: "EUR",
+          items: []
+        },
         candles: {
           selected: "1 day",
           items: [
@@ -422,12 +450,26 @@ export default {
       }
     }
   },
+  created() {
+    // init account list
+    this.propData.forEach(acc => {
+      if (this.footer.pair.mainCurrency != acc.currency) {
+        this.footer.pair.items.push({
+          title: acc.currency + "-" + this.footer.pair.mainCurrency,
+          value: acc.currency
+        })
+      }
+    })
+  },
   methods: {
     updatefooterCandle(item) {
       this.footer.candles.selected = item.title
     },
     updatefooterCandleCount(item) {
       this.footer.candleCount.selected = item.value
+    },
+    updatefooterPair(item) {
+      this.footer.pair.selected = item.title
     }
   }
 }

@@ -51,7 +51,11 @@
           <v-col>
             <transition name="fade">
               <keep-alive max="5">
-                <component :is="component.currentComponent"></component>
+                <component
+                  v-if="component.propData"
+                  :is="component.currentComponent"
+                  v-bind:propData="component.propData"
+                ></component>
               </keep-alive>
             </transition>
           </v-col>
@@ -78,8 +82,10 @@ export default {
         email: null
       },
       component: {
+        mainCurrency: "EUR",
         currentTitle: null,
-        currentComponent: null
+        currentComponent: null,
+        propData: null
       },
       alert: {
         text: "loading ...",
@@ -102,6 +108,17 @@ export default {
       this.apps = data.data
       // init component
       this.setComponent(data.data[0].component, data.data[0].title)
+    })
+
+    // init account list and assign it to prop
+    axios.get(this.$store.getters.getAPIUrl + "/getAccountList").then(data => {
+      if (data.data.status == "success") {
+        var newData = data.data.accounts.filter(el => el.available > 0)
+        // assign prop variable
+        this.component.propData = newData
+      } else {
+        this.component.propData = ["error"]
+      }
     })
 
     // start worker / get update
@@ -127,7 +144,7 @@ export default {
     },
     updateAlert() {
       axios
-        .get(this.$store.getters.getAPIUrl + "/coinbaseWorker")
+        .get(this.$store.getters.getAPIUrl + "/checkWorker")
         .then(data => {
           if (data.data.status == "online") {
             this.alert.text = data.data.message
@@ -138,7 +155,8 @@ export default {
           }
         })
         .catch(error => {
-          ;(this.alert.text = "Can't reach API"), (this.alert.type = "error")
+          this.alert.text = "Can't reach API"
+          this.alert.type = "error"
         })
     }
   },
