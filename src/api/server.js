@@ -248,7 +248,41 @@ app.get("/getMarketPrice/:product", serverHelper.verifyToken, (req, res) => {
   })
 })
 
-app.get("/getCandles")
+app.get("/getCandles/:pair/:gran", serverHelper.verifyToken, (req, res) => {
+  jwt.verify(req.token, process.env.VUE_APP_SECRET_KEY, (err, decoded) => {
+    if (err) {
+      res.sendStatus(401)
+    } else {
+      let command = "getCandles"
+      let id = serverHelper.generateID(6)
+      // create new event + once listener
+      eventemitter.once(decoded.username + ":" + command + ":" + id, data => {
+        if (data == "shutdown") {
+          res.json({
+            status: "error",
+            message:
+              "Could not get get " +
+              command +
+              " Data! Please check your coinbase api settings!"
+          })
+        } else {
+          res.json({
+            status: "success",
+            message: "Received " + command,
+            data
+          })
+        }
+      })
+      // send request to worker
+      workerHelper.sendMessageToWorker({
+        username: decoded.username,
+        id,
+        cmd: command,
+        params: req.params
+      })
+    }
+  })
+})
 
 // start server
 app.listen(process.env.VUE_APP_SERVERPORT, () => {

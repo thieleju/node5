@@ -170,9 +170,6 @@ module.exports = {
     if (worker) {
       // send message
       worker.postMessage(data)
-    } else {
-      console.log("error, worker with id: " + workerID + " not found")
-      console.log({ data })
     }
   }
 }

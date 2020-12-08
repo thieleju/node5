@@ -19,15 +19,6 @@ if (!client) {
 } else {
   // worker started correctly
   sendResponse("startup", "Worker started", "", "")
-  // get Account list
-  // client.rest.account
-  //   .listAccounts()
-  //   .then(data => {
-  //     allAccountsArray = data
-  //   })
-  //   .catch(() => {
-  //     stopMe()
-  //   })
 }
 
 // set interval with updateWorker() callback
@@ -49,6 +40,10 @@ parentPort.on("message", data => {
       break
     case "getMarketPrice":
       getMarketPrice(data)
+      break
+    case "getCandles":
+      getCandles(data)
+      break
   }
 })
 
@@ -96,6 +91,26 @@ function getMarketPrice(reqData) {
       )
     })
     .catch(error => stopMe("ERROR get MarketPrice failed"))
+}
+
+function getCandles(data) {
+  const pair = data.params.pair
+  const gran = CandleGranularity[data.params.gran]
+
+  client.rest.product
+    .getCandles(pair, {
+      granularity: gran
+    })
+    .then(candles => {
+      let start = candles[0].openTimeInISO
+      let end = candles[candles.length - 1].openTimeInISO
+      sendResponse("message", "Candle data", "getCandles", data.id, {
+        candle: candles[candles.length - 1],
+        start,
+        end
+      })
+    })
+    .catch(error => stopMe("ERROR get Candles failed"))
 }
 
 /**

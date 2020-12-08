@@ -51,7 +51,7 @@
                   v-for="(item, index) in footer.candles.items"
                   :key="index"
                   link
-                  @click="updatefooterCandle(item)"
+                  @click="updatefooterCandle(item, index)"
                 >
                   <v-list-item-title>
                     {{ item.title }}
@@ -71,7 +71,7 @@
                   v-for="(item, index) in footer.candleCount.items"
                   :key="index"
                   link
-                  @click="updatefooterCandleCount(item)"
+                  @click="updatefooterCandleCount(item, index)"
                 >
                   <v-list-item-title>
                     {{ item.value }} {{ footer.candleCount.postfix }}
@@ -99,6 +99,7 @@ export default {
   },
   data() {
     return {
+      accountListData: null,
       mainchart: {
         series: [
           {
@@ -157,12 +158,13 @@ export default {
       },
       footer: {
         pair: {
-          selected: "EUR-BTC",
+          selected: "BTC-EUR",
           mainCurrency: "EUR",
           items: []
         },
         candles: {
           selected: "1 day",
+          selectedValue: "ONE_DAY",
           items: [
             {
               title: "1 day",
@@ -216,24 +218,69 @@ export default {
   },
   created() {
     // init account list
-    this.propData.forEach(acc => {
-      if (this.footer.pair.mainCurrency != acc.currency) {
-        this.footer.pair.items.push({
-          title: acc.currency + "-" + this.footer.pair.mainCurrency,
-          value: acc.currency
-        })
-      }
-    })
+    this.initAccountList(this.propData)
+    // init graph
+    this.initGraph(this.propData)
   },
   methods: {
-    updatefooterCandle(item) {
-      this.footer.candles.selected = item.title
+    updatefooterCandle(item, index) {
+      this.footer.candles.selected = item.value
+      this.footer.candles.selectedValue = this.footer.candles.items[index].value
+      // reload graph
+      this.initGraph(this.propData)
     },
     updatefooterCandleCount(item) {
       this.footer.candleCount.selected = item.value
+      // reload graph
+      this.initGraph(this.propData)
     },
     updatefooterPair(item) {
       this.footer.pair.selected = item.title
+      // reload graph
+      this.initGraph(this.propData)
+    },
+    initGraph(data) {
+      let pair = this.footer.pair.selected
+      let candleType = this.footer.candles.selectedValue
+      let candleCount = this.footer.candleCount.selected
+      let series = []
+
+      axios
+        .get(
+          this.$store.getters.getAPIUrl +
+            "/getCandles/" +
+            pair +
+            "/" +
+            candleType
+        )
+        .then(candles => {
+          console.log({ candles })
+        })
+        .catch(error => stopMe("ERROR get Candles failed"))
+
+      for (let i = 0; i < candleCount; i++) {
+        series.push({
+          data: [
+            {
+              x: new Date().toDateString(),
+              y: [6629.81, 6650.5, 6623.04, 6633.33]
+            }
+          ]
+        })
+      }
+      console.log(series)
+      // give data to chart
+      this.mainchart.series = series
+    },
+    initAccountList(data) {
+      data.forEach(acc => {
+        if (this.footer.pair.mainCurrency != acc.currency) {
+          this.footer.pair.items.push({
+            title: acc.currency + "-" + this.footer.pair.mainCurrency,
+            value: acc.currency
+          })
+        }
+      })
     }
   }
 }
