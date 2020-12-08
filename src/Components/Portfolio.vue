@@ -140,8 +140,8 @@ export default {
         data.forEach(data => {
           if (data.data.status === "success") {
             newData.push({
-              currency: data.data.product.split("-")[0],
-              lastClosingPrice: data.data.lastClosingPrice
+              currency: data.data.data.candle.base,
+              lastClosingPrice: data.data.data.candle.close
             })
           } else {
             newData.push({

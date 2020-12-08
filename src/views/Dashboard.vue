@@ -146,7 +146,7 @@ export default {
       axios
         .get(this.$store.getters.getAPIUrl + "/checkWorker")
         .then(data => {
-          if (data.data.status == "online") {
+          if (data.data.workerData.status == "online") {
             this.alert.text = data.data.message
             this.alert.type = "success"
           } else {

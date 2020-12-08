@@ -1,6 +1,8 @@
 const axios = require("axios")
 const { workerData, parentPort } = require("worker_threads")
 
+const { CandleGranularity } = require("coinbase-pro-node")
+
 const serverHelper = require("./serverHelper")
 const workerHelper = require("./workerHelper")
 const coinbaseHelper = require("./coinbaseHelper")
@@ -15,17 +17,17 @@ if (!client) {
   console.log(workerData)
   stopMe()
 } else {
-  // verify worker started correctly
-  sendResponse("startup", "Worker started")
+  // worker started correctly
+  sendResponse("startup", "Worker started", "", "")
   // get Account list
-  client.rest.account
-    .listAccounts()
-    .then(data => {
-      allAccountsArray = data
-    })
-    .catch(() => {
-      stopMe()
-    })
+  // client.rest.account
+  //   .listAccounts()
+  //   .then(data => {
+  //     allAccountsArray = data
+  //   })
+  //   .catch(() => {
+  //     stopMe()
+  //   })
 }
 
 // set interval with updateWorker() callback
@@ -37,13 +39,16 @@ const intervalID = setInterval(() => {
 }, interval)
 
 // receive message from parent
-parentPort.on("message", message => {
-  switch (message) {
+parentPort.on("message", data => {
+  switch (data.cmd) {
     case "exit":
       stopMe()
       break
-    default:
-      sendResponse("status", "online")
+    case "getAccountList":
+      getAccountList(data)
+      break
+    case "getMarketPrice":
+      getMarketPrice(data)
   }
 })
 
@@ -52,13 +57,52 @@ parentPort.on("message", message => {
  *  This function gets called every workerData.timeBetweenChecksInS seconds
  */
 function updateWorker() {
-  sendResponse("message", "Hello!")
+  // sendResponse("message", "Hello!", "", "", "")
 }
+
+function getAccountList(reqData) {
+  // get Account list
+  client.rest.account
+    .listAccounts()
+    .then(data => {
+      allAccountsArray = data
+      sendResponse(
+        "message",
+        "Account List",
+        "getAccountList",
+        reqData.id,
+        data
+      )
+    })
+    .catch(error => stopMe("Error get MarketPrice failed"))
+}
+
+function getMarketPrice(reqData) {
+  const candleGran = CandleGranularity.ONE_MINUTE
+  // get candles
+  client.rest.product
+    .getCandles(reqData.product, {
+      granularity: candleGran
+    })
+    .then(candles => {
+      sendResponse(
+        "message",
+        "Latest OneMinute-Gran MarketPrice",
+        "getMarketPrice",
+        reqData.id,
+        {
+          candle: candles[candles.length - 1]
+        }
+      )
+    })
+    .catch(error => stopMe("ERROR get MarketPrice failed"))
+}
+
 /**
  * This function stops the worker
  */
-function stopMe() {
-  sendResponse("shutdown", "Stopped worker")
+function stopMe(error) {
+  sendResponse("shutdown", "Stopped worker", "", error)
   clearInterval(intervalID)
   parentPort.close()
 }
@@ -66,10 +110,13 @@ function stopMe() {
  * Sends a response to the listener in workerlpers
  * @param {String} msg Message you want to send
  */
-function sendResponse(type, msg) {
+function sendResponse(type, msg, cmd, id, data) {
   workerData.type = type
   workerData.counter = counter
   workerData.message = msg
+  workerData.command = cmd
+  workerData.data = data
+  workerData.id = id
 
   parentPort.postMessage(workerData)
 }

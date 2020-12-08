@@ -280,13 +280,12 @@ module.exports = {
   getTimestamp() {
     return moment(new Date()).format("YYYY-MM-DD HH:mm:ss")
   },
-  generateID() {
+  generateID(length) {
     var result = ""
     var characters =
       "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-    var charactersLength = characters.length
     for (var i = 0; i < length; i++) {
-      result += characters.charAt(Math.floor(Math.random() * charactersLength))
+      result += characters.charAt(Math.floor(Math.random() * characters.length))
     }
     return result
   }

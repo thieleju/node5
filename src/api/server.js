@@ -4,6 +4,7 @@ const bodyParser = require("body-parser")
 const fs = require("fs")
 const express = require("express")
 const app = express()
+const emitter = require("events").EventEmitter
 
 // get secret information from .env
 const { config } = require("dotenv")
@@ -13,6 +14,15 @@ config({ path: __dirname + "../../../.env" })
 var serverHelper = require("./serverHelper")
 var workerHelper = require("./workerHelper")
 var coinbaseHelper = require("./coinbaseHelper")
+
+// event emitter
+var eventemitter = new emitter()
+
+module.exports = {
+  getEventEmitter() {
+    return eventemitter
+  }
+}
 
 app.use(cors())
 app.use(bodyParser.json())
@@ -171,23 +181,33 @@ app.get("/getAccountList", serverHelper.verifyToken, (req, res) => {
     if (err) {
       res.sendStatus(401)
     } else {
-      const client = coinbaseHelper.initClient(decoded.username, false)
-      client.rest.account
-        .listAccounts()
-        .then(accounts => {
-          res.json({
-            status: "success",
-            message: "Received Account List Data",
-            accounts
-          })
-        })
-        .catch(() => {
+      let command = "getAccountList"
+      let id = serverHelper.generateID(6)
+      // create new event + once listener
+      eventemitter.once(decoded.username + ":" + command + ":" + id, data => {
+        if (data == "shutdown") {
           res.json({
             status: "error",
             message:
-              "Could not get Account List Data! Please check your coinbase api settings!"
+              "Could not get get " +
+              command +
+              " Data! Please check your coinbase api settings!"
           })
-        })
+        } else {
+          res.json({
+            status: "success",
+            message: "Received " + command,
+            accounts: data
+          })
+        }
+      })
+      // send request to worker
+      workerHelper.sendMessageToWorker({
+        username: decoded.username,
+        id,
+        cmd: command,
+        data: null
+      })
     }
   })
 })
@@ -197,15 +217,33 @@ app.get("/getMarketPrice/:product", serverHelper.verifyToken, (req, res) => {
     if (err) {
       res.sendStatus(401)
     } else {
-      const client = coinbaseHelper.initClient(decoded.username, false)
-      coinbaseHelper
-        .doGetMarketPrice(req, res, client)
-        .then(data => {
-          res.json(data)
-        })
-        .catch(error => {
-          res.json(error)
-        })
+      let command = "getMarketPrice"
+      let id = serverHelper.generateID(6)
+      // create new event + once listener
+      eventemitter.once(decoded.username + ":" + command + ":" + id, data => {
+        if (data == "shutdown") {
+          res.json({
+            status: "error",
+            message:
+              "Could not get get " +
+              command +
+              " Data! Please check your coinbase api settings!"
+          })
+        } else {
+          res.json({
+            status: "success",
+            message: "Received " + command,
+            data
+          })
+        }
+      })
+      // send request to worker
+      workerHelper.sendMessageToWorker({
+        username: decoded.username,
+        id,
+        cmd: command,
+        product: req.params.product
+      })
     }
   })
 })

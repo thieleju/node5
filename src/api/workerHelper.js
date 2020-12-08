@@ -18,30 +18,24 @@ module.exports = {
    */
   checkWorker(username) {
     return new Promise((resolve, reject) => {
-      var serverHelper = require("./serverHelper") // why do I need this?
-
-      // get worker data and status
-      let workerData = serverHelper.getUserConfig("workerData", username)
+      // get workerdata
+      let workerData = module.exports.getWorkerDataFromUsername(username)
 
       if (!workerData)
         throw new Error({
           status: "error",
-          message: "Could not read worker Data"
+          message: "Could not get worker Data"
         })
 
-      // add username to workerData
-      workerData.username = username
-
       // check if worker is running => 1 worker per user
-      if (
-        module.exports.checkIfWorkerIsAlreadyRunning(
-          username,
-          workerData.workerID
-        )
-      ) {
+      let running = module.exports.checkIfWorkerIsAlreadyRunning(
+        username,
+        workerData.workerID
+      )
+      if (running) {
         // worker online
         resolve({
-          status: workerData.status,
+          status: "success",
           message: "Worker is " + workerData.status,
           workerData
         })
@@ -53,7 +47,7 @@ module.exports = {
 
         // resolve starting message
         resolve({
-          status: workerData.status,
+          status: "success",
           message: "Worker is starting ...",
           workerData
         })
@@ -62,6 +56,7 @@ module.exports = {
   },
   startWorker(username, workerData) {
     var serverHelper = require("./serverHelper") // why do I need this?
+    var server = require("./server")
 
     // create worker object
     const worker = new Worker("./src/api/coinbaseWorker.js", { workerData })
@@ -85,8 +80,23 @@ module.exports = {
             data.username,
             "Stopped worker " + data.workerID
           )
-        default:
-          console.log(data)
+          // receive answer of shutdown and emit event
+          server
+            .getEventEmitter()
+            .emit(data.username + ":" + data.command + ":" + data.id, data.data)
+        case "message":
+          console.log(
+            "Message on event -> " +
+              data.username +
+              ":" +
+              data.command +
+              ":" +
+              data.id
+          )
+          // receive answer to request and emit event
+          server
+            .getEventEmitter()
+            .emit(data.username + ":" + data.command + ":" + data.id, data.data)
       }
     })
 
@@ -101,6 +111,7 @@ module.exports = {
     })
 
     // add workerdata to allWorkers array to keep track of everything
+    workerData.worker = worker
     allWorkers.push(workerData)
   },
   getWorkerIDLength() {
@@ -116,5 +127,52 @@ module.exports = {
       })
     }
     return matchingWorkerFound
+  },
+  getWorkerDataFromUsername(username) {
+    var serverHelper = require("./serverHelper") // why do I need this?
+
+    // get worker data
+    let workerData = serverHelper.getUserConfig("workerData", username)
+
+    if (!workerData) return null
+
+    // add username to workerData and return
+    workerData.username = username
+    return workerData
+  },
+  getWorkerObjectFromAllWorkersArray(username, workerID) {
+    let matching = null
+    if (allWorkers.length >= 1) {
+      allWorkers.forEach(el => {
+        if (el.username == username && workerID == el.workerID) {
+          matching = el.worker
+        }
+      })
+    }
+    return matching
+  },
+  sendMessageToWorker(data) {
+    // get worker ID
+    let workerID = module.exports.getWorkerDataFromUsername(data.username)
+      .workerID
+
+    if (!workerID)
+      throw new Error({
+        status: "error",
+        message: "Could not find workerID"
+      })
+
+    // get worker object
+    let worker = module.exports.getWorkerObjectFromAllWorkersArray(
+      data.username,
+      workerID
+    )
+    if (worker) {
+      // send message
+      worker.postMessage(data)
+    } else {
+      console.log("error, worker with id: " + workerID + " not found")
+      console.log({ data })
+    }
   }
 }
