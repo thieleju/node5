@@ -95,22 +95,56 @@ function getMarketPrice(reqData) {
 
 function getCandles(data) {
   const pair = data.params.pair
+  const count = data.params.count
   const gran = CandleGranularity[data.params.gran]
+  const end = new Date()
+  var start = new Date()
+
+  switch (data.params.gran) {
+    case "ONE_DAY":
+      start = new Date(new Date().setDate(end.getDate() - count))
+      break
+    case "SIX_HOURS":
+      start = new Date(
+        new Date().setTime(end.getTime() - count * 6 * 60 * 60 * 1000)
+      )
+      break
+    case "ONE_HOUR":
+      start = new Date(
+        new Date().setDatsetTimee(end.getTime() - count * 1 * 60 * 60 * 1000)
+      )
+      break
+    case "FIFTEEN_MINUTES":
+      start = new Date(
+        new Date().setTime(end.getTime() - count * 15 * 60 * 1000)
+      )
+      break
+    case "FIVE_MINUTES":
+      start = new Date(
+        new Date().setTime(end.getTime() - count * 5 * 60 * 1000)
+      )
+      break
+    case "ONE_MINUTE":
+      start = new Date(
+        new Date().setTime(end.getTime() - count * 1 * 60 * 1000)
+      )
+      break
+  }
 
   client.rest.product
     .getCandles(pair, {
-      granularity: gran
+      granularity: gran,
+      start,
+      end
     })
     .then(candles => {
-      let start = candles[0].openTimeInISO
-      let end = candles[candles.length - 1].openTimeInISO
       sendResponse("message", "Candle data", "getCandles", data.id, {
-        candle: candles[candles.length - 1],
+        candles,
         start,
         end
       })
     })
-    .catch(error => stopMe("ERROR get Candles failed"))
+    .catch(error => stopMe("ERROR get Candles failed! " + error))
 }
 
 /**

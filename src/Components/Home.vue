@@ -101,16 +101,7 @@ export default {
     return {
       accountListData: null,
       mainchart: {
-        series: [
-          {
-            data: [
-              {
-                x: new Date(1538778600000),
-                y: [6629.81, 6650.5, 6623.04, 6633.33]
-              }
-            ]
-          }
-        ],
+        series: [{}],
         options: {
           chart: {
             type: "candlestick",
@@ -130,7 +121,7 @@ export default {
             }
           },
           legend: {
-            show: true
+            show: false
           },
           theme: {
             mode: "dark"
@@ -224,7 +215,7 @@ export default {
   },
   methods: {
     updatefooterCandle(item, index) {
-      this.footer.candles.selected = item.value
+      this.footer.candles.selected = item.title
       this.footer.candles.selectedValue = this.footer.candles.items[index].value
       // reload graph
       this.initGraph(this.propData)
@@ -244,6 +235,7 @@ export default {
       let candleType = this.footer.candles.selectedValue
       let candleCount = this.footer.candleCount.selected
       let series = []
+      let arr = []
 
       axios
         .get(
@@ -251,24 +243,23 @@ export default {
             "/getCandles/" +
             pair +
             "/" +
-            candleType
+            candleType +
+            "/" +
+            candleCount
         )
         .then(candles => {
-          console.log({ candles })
+          // Candels received successully
+          for (let i = 0; i < candleCount; i++) {
+            let candle = candles.data.data.candles[i]
+            arr.push({
+              x: new Date(candle.openTimeInISO),
+              y: [candle.open, candle.high, candle.low, candle.close]
+            })
+          }
+          series.push({ data: arr })
         })
-        .catch(error => stopMe("ERROR get Candles failed"))
+        .catch(error => console.log(error))
 
-      for (let i = 0; i < candleCount; i++) {
-        series.push({
-          data: [
-            {
-              x: new Date().toDateString(),
-              y: [6629.81, 6650.5, 6623.04, 6633.33]
-            }
-          ]
-        })
-      }
-      console.log(series)
       // give data to chart
       this.mainchart.series = series
     },
