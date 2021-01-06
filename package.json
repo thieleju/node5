@@ -18,7 +18,7 @@
   "dependencies": {
     "@sweetalert2/themes": "^4.0.0",
     "apexcharts": "^3.22.1",
-    "axios": "^0.20.0",
+    "axios": "^0.21.1",
     "body-parser": "^1.19.0",
     "coinbase-pro-node": "^2.13.0",
     "cors": "^2.8.5",
