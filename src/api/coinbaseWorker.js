@@ -111,7 +111,7 @@ function getCandles(data) {
       break
     case "ONE_HOUR":
       start = new Date(
-        new Date().setDatsetTimee(end.getTime() - count * 1 * 60 * 60 * 1000)
+        new Date().setTime(end.getTime() - count * 1 * 60 * 60 * 1000)
       )
       break
     case "FIFTEEN_MINUTES":
