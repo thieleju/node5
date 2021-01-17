@@ -15,10 +15,10 @@ var allAccountsArray = []
 const client = coinbaseHelper.initClient(workerData.username, true)
 if (!client) {
   console.log(workerData)
-  stopMe()
+  stopMe("Error could not initialize worker!")
 } else {
   // worker started correctly
-  sendResponse("startup", "Worker started", "", "")
+  sendResponse(200, "startup", "Worker started", "", "")
 }
 
 // set interval with updateWorker() callback
@@ -33,7 +33,7 @@ const intervalID = setInterval(() => {
 parentPort.on("message", data => {
   switch (data.cmd) {
     case "exit":
-      stopMe()
+      stopMe("Exit stopping server")
       break
     case "getAccountList":
       getAccountList(data)
@@ -62,6 +62,7 @@ function getAccountList(reqData) {
     .then(data => {
       allAccountsArray = data
       sendResponse(
+        200,
         "message",
         "Account List",
         "getAccountList",
@@ -69,7 +70,16 @@ function getAccountList(reqData) {
         data
       )
     })
-    .catch(error => stopMe("Error get MarketPrice failed"))
+    .catch(error => {
+      sendResponse(
+        error.response.status,
+        "message",
+        error.response.statusText,
+        "getAccountList",
+        reqData.id,
+        error.data
+      )
+    })
 }
 
 function getMarketPrice(reqData) {
@@ -157,9 +167,15 @@ function stopMe(error) {
 }
 /**
  * Sends a response to the listener in workerlpers
- * @param {String} msg Message you want to send
+ * @param {*} status 200 or 401 ...
+ * @param {*} type   message, shutdown, startup error
+ * @param {*} msg    Message shown
+ * @param {*} cmd    getAccountList
+ * @param {*} id     event id
+ * @param {*} data   actual data
  */
-function sendResponse(type, msg, cmd, id, data) {
+function sendResponse(status, type, msg, cmd, id, data) {
+  workerData.status = status
   workerData.type = type
   workerData.counter = counter
   workerData.message = msg

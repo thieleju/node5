@@ -54,7 +54,7 @@
                 <component
                   v-if="component.propData"
                   :is="component.currentComponent"
-                  v-bind:propData="component.propData"
+                  :propData="component.propData"
                 ></component>
               </keep-alive>
             </transition>
@@ -67,13 +67,15 @@
 
 <script>
 import axios from "axios"
+import Loader from "../components/Loader.vue"
 
 export default {
   components: {
     home: () => import("../components/Home"),
     portfolio: () => import("../components/Portfolio"),
     bots: () => import("../components/Bots"),
-    settings: () => import("../components/Settings")
+    settings: () => import("../components/Settings"),
+    loader: () => import("../components/Loader")
   },
   data() {
     return {
@@ -82,9 +84,10 @@ export default {
         email: null
       },
       component: {
+        isLoading: true,
         mainCurrency: "EUR",
-        currentTitle: null,
-        currentComponent: null,
+        currentTitle: "Loading ... ",
+        currentComponent: "home",
         propData: null
       },
       alert: {
@@ -107,19 +110,26 @@ export default {
     axios.get(this.$store.getters.getAPIUrl + "/apps").then(data => {
       this.apps = data.data
       // init component
-      this.setComponent(data.data[0].component, data.data[0].title)
+      // this.setComponent(data.data[0].component, data.data[0].title)
     })
 
     // init account list and assign it to prop
-    axios.get(this.$store.getters.getAPIUrl + "/getAccountList").then(data => {
-      if (data.data.status == "success") {
-        var newData = data.data.accounts.filter(el => el.available > 0)
-        // assign prop variable
-        this.component.propData = newData
-      } else {
-        this.component.propData = ["error"]
-      }
-    })
+    axios
+      .get(this.$store.getters.getAPIUrl + "/getAccountList")
+      .then(data => {
+        if (data.data.status == "success") {
+          var newData = data.data.accounts.filter(el => el.available > 0)
+          // assign prop variable
+          this.component.propData = newData
+          // show component
+          this.setComponent(this.apps[0].component, this.apps[0].title)
+        } else {
+          this.component.propData = ["error"]
+        }
+      })
+      .catch(error => {
+        console.log(error)
+      })
 
     // start worker / get update
     this.updateAlert()

@@ -84,19 +84,16 @@ module.exports = {
           server
             .getEventEmitter()
             .emit(data.username + ":" + data.command + ":" + data.id, data.data)
+          break
         case "message":
-          console.log(
-            "Message on event -> " +
-              data.username +
-              ":" +
-              data.command +
-              ":" +
-              data.id
+          serverHelper.addLogEntry(
+            data.username,
+            data.command + " | " + data.message
           )
           // receive answer to request and emit event
           server
             .getEventEmitter()
-            .emit(data.username + ":" + data.command + ":" + data.id, data.data)
+            .emit(data.username + ":" + data.command + ":" + data.id, data)
       }
     })
 

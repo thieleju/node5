@@ -185,19 +185,20 @@ app.get("/getAccountList", serverHelper.verifyToken, (req, res) => {
       let id = serverHelper.generateID(6)
       // create new event + once listener
       eventemitter.once(decoded.username + ":" + command + ":" + id, data => {
-        if (data == "shutdown") {
+        if (data.status != 200) {
           res.json({
             status: "error",
             message:
               "Could not get get " +
               command +
-              " Data! Please check your coinbase api settings!"
+              " Data! Please check your coinbase api settings!",
+            error: data.message
           })
         } else {
           res.json({
             status: "success",
             message: "Received " + command,
-            accounts: data
+            accounts: data.data
           })
         }
       })

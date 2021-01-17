@@ -4,7 +4,7 @@ dist
 db/user.json
 db/logs.json
 src/assets/dsgvo.html
-
+Components
 
 # local env files
 .env.local
