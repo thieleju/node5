@@ -29,6 +29,7 @@
     "jsonwebtoken": "^8.5.1",
     "moment": "^2.29.1",
     "mongoose": "^5.10.10",
+    "mysql": "^2.18.1",
     "please-wait": "0.0.5",
     "sass-loader": "^10.0.4",
     "sweetalert2": "^10.8.1",

@@ -67,15 +67,13 @@
 
 <script>
 import axios from "axios"
-import Loader from "../components/Loader.vue"
 
 export default {
   components: {
     home: () => import("../components/Home"),
     portfolio: () => import("../components/Portfolio"),
     bots: () => import("../components/Bots"),
-    settings: () => import("../components/Settings"),
-    loader: () => import("../components/Loader")
+    settings: () => import("../components/Settings")
   },
   data() {
     return {
@@ -107,7 +105,7 @@ export default {
     this.user.email = user.email
 
     // init apps
-    axios.get(this.$store.getters.getAPIUrl + "/apps").then(data => {
+    axios.get(this.$store.getters.getAPIUrl + "/public/apps").then(data => {
       this.apps = data.data
       // init component
       // this.setComponent(data.data[0].component, data.data[0].title)

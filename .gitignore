@@ -5,6 +5,7 @@ db/user.json
 db/logs.json
 src/assets/dsgvo.html
 Components
+python-api
 
 # local env files
 .env.local

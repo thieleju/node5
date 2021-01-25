@@ -38,21 +38,25 @@ export default new Vuex.Store({
   },
   actions: {
     register({ commit }, credentials) {
-      return axios.post(apiURL + "/register", credentials).then(({ data }) => {
-        if (data.status == "success") {
-          return data
-        }
-        throw new Error(data.message)
-      })
+      return axios
+        .post(apiURL + "/auth/register", credentials)
+        .then(({ data }) => {
+          if (data.status == "success") {
+            return data
+          }
+          throw new Error(data.message)
+        })
     },
     login({ commit }, credentials) {
-      return axios.post(apiURL + "/login", credentials).then(({ data }) => {
-        if (data.status == "success") {
-          commit("SET_USER_DATA", data)
-          return data
-        }
-        throw new Error(data.message)
-      })
+      return axios
+        .post(apiURL + "/auth/login", credentials)
+        .then(({ data }) => {
+          if (data.status == "success") {
+            commit("SET_USER_DATA", data)
+            return data
+          }
+          throw new Error(data.message)
+        })
     },
     logout({ commit }) {
       commit("CLEAR_USER_DATA")
