@@ -105,7 +105,7 @@ export default {
     this.user.email = user.email
 
     // init apps
-    axios.get(this.$store.getters.getAPIUrl + "/public/apps").then(data => {
+    axios.get(this.$store.getters.getAPIUrl + "/data/apps").then(data => {
       this.apps = data.data
       // init component
       // this.setComponent(data.data[0].component, data.data[0].title)
