@@ -78,8 +78,7 @@ export default {
   data() {
     return {
       user: {
-        username: null,
-        email: null
+        username: null
       },
       component: {
         isLoading: true,
@@ -102,39 +101,40 @@ export default {
     // init user
     let user = this.$store.getters.getUser
     this.user.username = user.username
-    this.user.email = user.email
 
     // init apps
     axios.get(this.$store.getters.getAPIUrl + "/data/apps").then(data => {
-      this.apps = data.data
-      // init component
-      // this.setComponent(data.data[0].component, data.data[0].title)
+      this.apps = data.data.data
+      console.log(this.apps[0])
+      this.setComponent(this.apps[0].component, this.apps[0].title)
+      this.component.propData = []
     })
 
     // init account list and assign it to prop
-    axios
-      .get(this.$store.getters.getAPIUrl + "/getAccountList")
-      .then(data => {
-        if (data.data.status == "success") {
-          var newData = data.data.accounts.filter(el => el.available > 0)
-          // assign prop variable
-          this.component.propData = newData
-          // show component
-          this.setComponent(this.apps[0].component, this.apps[0].title)
-        } else {
-          this.component.propData = ["error"]
-        }
-      })
-      .catch(error => {
-        console.log(error)
-      })
+    // axios
+    //   .get(this.$store.getters.getAPIUrl + "/getAccountList")
+    //   .then(data => {
+    //     if (data.data.status == "success") {
+    //       var newData = data.data.accounts.filter(el => el.available > 0)
+    //       // assign prop variable
+    //       this.component.propData = newData
+    //       // show component
+    //       this.setComponent(this.apps[0].component, this.apps[0].title)
+    //     } else {
+    //       this.component.propData = ["error"]
+    //     }
+    //   })
+    //   .catch(error => {
+    //     console.log(error)
+    //   })
 
-    // start worker / get update
-    this.updateAlert()
-    setInterval(() => this.updateAlert(), this.alert.timerIntervalInS * 1000)
+    // // start worker / get update
+    // this.updateAlert()
+    // setInterval(() => this.updateAlert(), this.alert.timerIntervalInS * 1000)
   },
   methods: {
     setComponent(comp, title) {
+      console.log(comp, title)
       // change current title
       this.component.currentTitle = title
       // change current component

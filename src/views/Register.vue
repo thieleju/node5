@@ -91,14 +91,13 @@ export default {
       this.$store
         .dispatch("register", {
           username: this.username,
-          email: this.email,
           password: this.password
         })
         .then(data => {
           this.accountRequestSuccessful(data.message)
         })
         .catch(error => {
-          this.accountRequestFailed(error.message)
+          this.accountRequestFailed(error)
         })
     },
     accountRequestSuccessful(message) {

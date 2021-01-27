@@ -63,7 +63,7 @@ module.exports = {
             // close connection when query is done
             con.end(err => reject(err))
             // log query and resolve promise
-            module.exports.addLogEntry(username, "Query executed: " + query)
+            module.exports.addLogEntry(username, "[QUERY] " + query)
             resolve(rows)
           }
         })

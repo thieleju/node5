@@ -43,8 +43,9 @@ export default new Vuex.Store({
         .then(({ data }) => {
           if (data.status == "success") {
             return data
+          } else {
+            throw data.message
           }
-          throw new Error(data.message)
         })
     },
     login({ commit }, credentials) {
@@ -54,8 +55,9 @@ export default new Vuex.Store({
           if (data.status == "success") {
             commit("SET_USER_DATA", data)
             return data
+          } else {
+            throw data.message
           }
-          throw new Error(data.message)
         })
     },
     logout({ commit }) {

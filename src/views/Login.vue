@@ -81,7 +81,7 @@ export default {
           this.loginSuccessful(data.message)
         })
         .catch(error => {
-          this.loginFailed(error.message)
+          this.loginFailed(error)
         })
     },
     loginSuccessful(message) {

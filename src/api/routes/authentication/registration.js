@@ -54,7 +54,7 @@ router.post("/", async (req, res) => {
     })
   } catch (error) {
     general.addLogEntry(req.body.username, error)
-    res.status(400).json({ status: "error", message: error })
+    res.status(200).json({ status: "error", message: error })
   }
 })
 

@@ -58,11 +58,12 @@ router.post("/", async (req, res) => {
     res.status(200).json({
       status: "success",
       message: "Signed in as user " + req.body.username,
+      username: req.body.username,
       token
     })
   } catch (error) {
     general.addLogEntry(req.body.username, error)
-    res.status(400).json({ status: "error", message: error })
+    res.status(200).json({ status: "error", message: error })
   }
 })
 
