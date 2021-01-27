@@ -6,28 +6,19 @@ var router = express.Router()
 
 var general = require("../../general")
 
-const SQL_Database = require("../../sql_database")
-
 router.post("/", async (req, res) => {
   try {
     if (!req.body || !req.body.password || !req.body.username)
       throw "Missing password or username"
 
-    let sqldb = new SQL_Database(req.body.username, true)
-
-    function throwError(error) {
-      // close db connection
-      sqldb.closeConnection()
-      throw error
-    }
-
     // check if user already exists
-    let data = await sqldb.executeQuery(
+    let data = await general.executeSQLQuery(
+      req.body.username,
       "select username from users where username = ?",
       [req.body.username]
     )
 
-    if (data.length != 0) throwError("Username already taken!")
+    if (data.length != 0) throw "Username already taken!"
 
     let email = ""
     if (req.body.email) email = req.body.email
@@ -40,7 +31,8 @@ router.post("/", async (req, res) => {
     )
 
     // create new deactivated user
-    data = await sqldb.executeQuery(
+    data = await general.executeSQLQuery(
+      req.body.username,
       "insert into users ( activated, username, email, password, salt, lastLogin) values (?,?,?,?,?,?);",
       [
         "0",
@@ -51,9 +43,10 @@ router.post("/", async (req, res) => {
         moment(new Date()).format("YYYY-MM-DD HH:mm:ss")
       ]
     )
-    // close db connection
-    sqldb.closeConnection()
-
+    general.addLogEntry(
+      req.body.username,
+      "Registered new account successfully!"
+    )
     // return jwt token
     res.status(200).json({
       status: "success",

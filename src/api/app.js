@@ -24,13 +24,16 @@ config({ path: __dirname + "../../../.env" })
 var routesAuth = require("./routes/authentication")
 var routesCoinbase = require("./routes/coinbase")
 var routesPublic = require("./routes/public")
+var routesData = require("./routes/data")
 
 app.use("/auth", routesAuth)
 app.use("/coinbase", routesCoinbase)
 app.use("/public", routesPublic)
+app.use("/data", routesData)
 
-app.get("/", (req, res) => {
-  res.status(200).json({ message: "Hello from the node5 API!" })
+// catch every other route
+app.get("*", (req, res) => {
+  res.status(404).json({ message: "Not found!" })
 })
 
 // start server

@@ -6,9 +6,9 @@ var authRegistration = require("./authentication/registration")
 var authCheckAuth = require("./authentication/checkauth")
 
 router
-  .get("/", (req, res) => {
-    res.status(200).json({ message: "Hello from the authentication api" })
-  })
+  // .get("/", (req, res) => {
+  //   res.status(200).json({ message: "Hello from the authentication api" })
+  // })
   .use("/login", authLogin)
   .use("/registration", authRegistration)
   .use("/checkauth", authCheckAuth)
