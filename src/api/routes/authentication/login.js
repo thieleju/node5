@@ -1,10 +1,13 @@
-const mysql = require("mysql")
 const crypto = require("crypto-js")
 const jwt = require("jsonwebtoken")
 const moment = require("moment")
 
 var express = require("express")
 var router = express.Router()
+
+var general = require("../../general")
+
+const token_expire = "1d"
 
 const SQL_Database = require("../../sql_database")
 
@@ -15,14 +18,20 @@ router.post("/", async (req, res) => {
 
     let sqldb = new SQL_Database(req.body.username, true)
 
+    function throwError(error) {
+      // close db connection
+      sqldb.closeConnection()
+      throw error
+    }
+
     let data = await sqldb.executeQuery(
       "select username, salt from users where username = ?;",
       [req.body.username]
     )
 
-    if (data.length == 0) throw "User could not be found!"
-    if (data.length > 1) throw "Multiple users found!"
-    if (!data[0].salt) throw "Salt could not be found!"
+    if (data.length == 0) throwError("User could not be found!")
+    if (data.length > 1) throwError("Multiple users found!")
+    if (!data[0].salt) throwError("Salt could not be found!")
 
     // generate password hash => sha256(password + salt)
     const hash = crypto.enc.Base64.stringify(
@@ -35,9 +44,9 @@ router.post("/", async (req, res) => {
       [req.body.username, hash]
     )
 
-    if (data.length == 0) throw "Invalid password!"
-    if (data.length > 1) throw "Identical users found!"
-    if (data[0].activated == 0) throw "Account deactivated!"
+    if (data.length == 0) throwError("Invalid password!")
+    if (data.length > 1) throwError("Identical users found!")
+    if (data[0].activated == 0) throwError("Account deactivated!")
 
     // set users last login date
     await sqldb.executeQuery(
@@ -52,7 +61,7 @@ router.post("/", async (req, res) => {
     const token = jwt.sign(
       { username: req.body.username },
       process.env.VUE_APP_SECRET_KEY,
-      { expiresIn: "1h" }
+      { expiresIn: token_expire }
     )
     // return jwt token
     res.status(200).json({
@@ -61,6 +70,7 @@ router.post("/", async (req, res) => {
       token
     })
   } catch (error) {
+    general.addLogEntry(req.body.username, error)
     res.status(400).json({ status: "error", message: error })
   }
 })

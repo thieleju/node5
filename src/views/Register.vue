@@ -79,7 +79,6 @@ export default {
       // validate user input
       if (
         this.username != "" &&
-        this.email != "" &&
         this.password != "" &&
         this.password == this.password2
       ) {

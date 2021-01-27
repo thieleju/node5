@@ -39,7 +39,7 @@ export default new Vuex.Store({
   actions: {
     register({ commit }, credentials) {
       return axios
-        .post(apiURL + "/auth/register", credentials)
+        .post(apiURL + "/auth/registration", credentials)
         .then(({ data }) => {
           if (data.status == "success") {
             return data
