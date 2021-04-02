@@ -123,13 +123,13 @@ export default {
       //  get all promises for holdings calculation
       accountsOver0.forEach(acc => {
         // add promise to promises array if not main currency
+        let payload = {
+          pair: acc.currency + "-" + mainCurrency
+        }
         promisesArray.push(
-          axios.get(
-            this.$store.getters.getAPIUrl +
-              "/getMarketPrice/" +
-              acc.currency +
-              "-" +
-              mainCurrency
+          axios.post(
+            this.$store.getters.getAPIUrl + "/coinbase/pub/marketPrice",
+            payload
           )
         )
       })
@@ -140,8 +140,8 @@ export default {
         data.forEach(data => {
           if (data.data.status === "success") {
             newData.push({
-              currency: data.data.data.candle.base,
-              lastClosingPrice: data.data.data.candle.close
+              currency: data.data.candle.base,
+              lastClosingPrice: data.data.candle.close
             })
           } else {
             newData.push({

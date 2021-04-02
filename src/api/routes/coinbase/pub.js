@@ -2,7 +2,7 @@ var express = require("express")
 var router = express.Router({ mergeParams: true })
 
 router
-  .use("/pri", require("./coinbase/pri"))
-  .use("/pub", require("./coinbase/pub"))
+  .use("/candles", require("./pub/candles"))
+  .use("/marketPrice", require("./pub/marketPrice"))
 
 module.exports = router

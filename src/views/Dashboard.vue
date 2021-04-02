@@ -73,7 +73,8 @@ export default {
     home: () => import("../components/Home"),
     portfolio: () => import("../components/Portfolio"),
     bots: () => import("../components/Bots"),
-    settings: () => import("../components/Settings")
+    settings: () => import("../components/Settings"),
+    dashboard: () => import("../components/Dash")
   },
   data() {
     return {
@@ -104,29 +105,33 @@ export default {
 
     // init apps
     axios.get(this.$store.getters.getAPIUrl + "/data/apps").then(data => {
-      this.apps = data.data.data
-      console.log(this.apps[0])
-      this.setComponent(this.apps[0].component, this.apps[0].title)
-      this.component.propData = []
+      if (data.data.name && data.data.name === "TokenExpiredError") {
+        this.$store.dispatch("logout")
+        return
+      } else {
+        this.apps = data.data.data
+        this.setComponent(this.apps[0].component, this.apps[0].title)
+        this.component.propData = []
+      }
     })
 
     // init account list and assign it to prop
-    // axios
-    //   .get(this.$store.getters.getAPIUrl + "/getAccountList")
-    //   .then(data => {
-    //     if (data.data.status == "success") {
-    //       var newData = data.data.accounts.filter(el => el.available > 0)
-    //       // assign prop variable
-    //       this.component.propData = newData
-    //       // show component
-    //       this.setComponent(this.apps[0].component, this.apps[0].title)
-    //     } else {
-    //       this.component.propData = ["error"]
-    //     }
-    //   })
-    //   .catch(error => {
-    //     console.log(error)
-    //   })
+    axios
+      .get(this.$store.getters.getAPIUrl + "/coinbase/pri/accountlist")
+      .then(data => {
+        if (data.data.status == "success") {
+          var newData = data.data.accounts.filter(el => el.available > 0)
+          // assign prop variable
+          this.component.propData = newData
+          // show component
+          this.setComponent(this.apps[0].component, this.apps[0].title)
+        } else {
+          this.component.propData = ["error"]
+        }
+      })
+      .catch(error => {
+        console.log(error)
+      })
 
     // // start worker / get update
     // this.updateAlert()
@@ -134,7 +139,6 @@ export default {
   },
   methods: {
     setComponent(comp, title) {
-      console.log(comp, title)
       // change current title
       this.component.currentTitle = title
       // change current component

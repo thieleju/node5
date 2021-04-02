@@ -1,16 +1,9 @@
 var express = require("express")
-var router = express.Router()
-
-var authLogin = require("./authentication/login")
-var authRegistration = require("./authentication/registration")
-var authCheckAuth = require("./authentication/checkauth")
+var router = express.Router({ mergeParams: true })
 
 router
-  // .get("/", (req, res) => {
-  //   res.status(200).json({ message: "Hello from the authentication api" })
-  // })
-  .use("/login", authLogin)
-  .use("/registration", authRegistration)
-  .use("/checkauth", authCheckAuth)
+  .use("/login", require("./authentication/login"))
+  .use("/registration", require("./authentication/registration"))
+  .use("/checkauth", require("./authentication/checkauth"))
 
 module.exports = router

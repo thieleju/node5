@@ -231,26 +231,20 @@ export default {
       this.initGraph(this.propData)
     },
     initGraph(data) {
-      let pair = this.footer.pair.selected
-      let candleType = this.footer.candles.selectedValue
-      let candleCount = this.footer.candleCount.selected
       let series = []
       let arr = []
 
+      let payload = {
+        pair: this.footer.pair.selected,
+        granularity: this.footer.candles.selectedValue,
+        amount: this.footer.candleCount.selected
+      }
       axios
-        .get(
-          this.$store.getters.getAPIUrl +
-            "/getCandles/" +
-            pair +
-            "/" +
-            candleType +
-            "/" +
-            candleCount
-        )
+        .post(this.$store.getters.getAPIUrl + "/coinbase/pub/candles", payload)
         .then(candles => {
           // Candels received successully
-          for (let i = 0; i < candleCount; i++) {
-            let candle = candles.data.data.candles[i]
+          for (let i = 0; i < this.footer.candleCount.selected; i++) {
+            let candle = candles.data.candles[i]
             arr.push({
               x: new Date(candle.openTimeInISO),
               y: [candle.open, candle.high, candle.low, candle.close]

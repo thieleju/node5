@@ -6,10 +6,6 @@ import router from "../router/index.js"
 
 Vue.use(Vuex)
 
-// get secret information from .env
-const { config } = require("dotenv")
-config({ path: __dirname + "/.env" })
-
 // set api URL
 let apiURL = ""
 if (process.env.VUE_APP_NODE_ENV == "production") {

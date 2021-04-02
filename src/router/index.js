@@ -7,10 +7,6 @@ import Startpage from "../views/Startpage.vue"
 
 import store from "../store"
 
-// get secret information from .env
-const { config } = require("dotenv")
-config({ path: __dirname + "/.env" })
-
 Vue.use(VueRouter)
 
 const routes = [

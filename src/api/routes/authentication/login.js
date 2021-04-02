@@ -3,9 +3,9 @@ const jwt = require("jsonwebtoken")
 const moment = require("moment")
 
 var express = require("express")
-var router = express.Router()
+var router = express.Router({ mergeParams: true })
 
-var general = require("../../general")
+var { executeSQLQuery, addLogEntry } = require("../../scripts/general")
 
 const token_expire = "1d"
 
@@ -14,7 +14,7 @@ router.post("/", async (req, res) => {
     if (!req.body || !req.body.password || !req.body.username)
       throw "Missing password or username"
 
-    let data = await general.executeSQLQuery(
+    let data = await executeSQLQuery(
       req.body.username,
       "select username, salt from users where username = ?;",
       [req.body.username]
@@ -30,7 +30,7 @@ router.post("/", async (req, res) => {
     )
 
     // check if user is valid
-    data = await general.executeSQLQuery(
+    data = await executeSQLQuery(
       req.body.username,
       "select activated, username, password from users where username = ? and password = ?;",
       [req.body.username, hash]
@@ -41,7 +41,7 @@ router.post("/", async (req, res) => {
     if (data[0].activated == 0) throw "Account deactivated!"
 
     // set users last login date
-    await general.executeSQLQuery(
+    await executeSQLQuery(
       req.body.username,
       "update users set lastLogin = ? where username = ?;",
       [moment(new Date()).format("YYYY-MM-DD HH:mm:ss"), req.body.username]
@@ -53,7 +53,7 @@ router.post("/", async (req, res) => {
       process.env.VUE_APP_SECRET_KEY,
       { expiresIn: token_expire }
     )
-    general.addLogEntry(req.body.username, "Signed in successfully!")
+    addLogEntry(req.body.username, "Signed in successfully! | " + req.ip)
     // return jwt token
     res.status(200).json({
       status: "success",
@@ -62,7 +62,7 @@ router.post("/", async (req, res) => {
       token
     })
   } catch (error) {
-    general.addLogEntry(req.body.username, error)
+    addLogEntry(req.body.username, error + " | " + req.ip)
     res.status(200).json({ status: "error", message: error })
   }
 })

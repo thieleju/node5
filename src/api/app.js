@@ -1,42 +1,50 @@
-const cors = require("cors")
-const bodyParser = require("body-parser")
-
-var express = require("express")
-var app = express()
-
-app.use(cors())
-// check if provided data is a valid json to catch unhandled errors
-app.use((req, res, next) => {
-  bodyParser.json()(req, res, err => {
-    if (err) {
-      return res
-        .status(400)
-        .json({ status: "error", message: "Invalid json provided" })
-    }
-    next()
-  })
-})
+const express = require("express")
+const app = express()
 
 // get secret information from .env
-const { config } = require("dotenv")
-config({ path: __dirname + "../../../.env" })
+const dotenv = require("dotenv")
+dotenv.config()
 
-var routesAuth = require("./routes/authentication")
-var routesCoinbase = require("./routes/coinbase")
-var routesPublic = require("./routes/public")
-var routesData = require("./routes/data")
+const { addLogEntry } = require("./scripts/general")
 
-app.use("/auth", routesAuth)
-app.use("/coinbase", routesCoinbase)
-app.use("/public", routesPublic)
-app.use("/data", routesData)
+app
+  // middleware able to get requestors ip by req.ip
+  .set("trust proxy", true)
+  // use cors
+  .use(require("cors")())
+  .use(express.json())
+  .use(
+    express.urlencoded({
+      extended: true
+    })
+  )
+  // check if provided data is a valid json to catch unhandled errors
+  .use((err, req, res, next) => {
+    if (err) {
+      res.status(400).json({ status: "error", message: "Invalid request!" })
+    }
+  })
 
-// catch every other route
-app.get("*", (req, res) => {
-  res.status(404).json({ message: "Not found!" })
-})
+  // import parent routes
+  .use("/auth", require("./routes/authentication"))
+  .use("/coinbase", require("./routes/coinbase"))
+  .use("/public", require("./routes/public"))
+  .use("/data", require("./routes/data"))
+  .use("/coinbase", require("./routes/coinbase"))
 
-// start server
-app.listen(process.env.VUE_APP_SERVERPORT, () => {
-  console.log("HTTP Server started on Port " + process.env.VUE_APP_SERVERPORT)
-})
+  // catch every other route
+  .get("*", (req, res) => {
+    res.status(404).json({ message: "Not found!" })
+  })
+
+  // start server
+  .listen(process.env.VUE_APP_SERVERPORT, () => {
+    addLogEntry(
+      "[SYSTEM]",
+      "Server started on port " + process.env.VUE_APP_SERVERPORT
+    )
+
+    // initialize worker pool
+    var wp = require("./worker/mainWorkerPool")
+    addLogEntry("[SYSTEM]", "Initialized Worker Pool: " + wp.getName())
+  })

@@ -1,8 +1,6 @@
 var express = require("express")
-var router = express.Router()
+var router = express.Router({ mergeParams: true })
 
-var dataApps = require("./data/apps")
-
-router.use("/apps", dataApps)
+router.use("/apps", require("./data/apps"))
 
 module.exports = router

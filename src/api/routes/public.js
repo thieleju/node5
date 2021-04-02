@@ -1,9 +1,8 @@
 var express = require("express")
-var router = express.Router()
+var router = express.Router({ mergeParams: true })
 
-var pubDSGVO = require("./public/dsgvo")
-var pubFavIcon = require("./public/favicon")
-
-router.use("/dsgvo", pubDSGVO).use("/favicon.ico", pubFavIcon)
+router
+  .use("/dsgvo", require("./public/dsgvo"))
+  .use("/favicon.ico", require("./public/favicon"))
 
 module.exports = router
