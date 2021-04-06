@@ -258,7 +258,6 @@ export default {
       this.mainchart.series = series
     },
     initAccountList(data) {
-      console.log(data)
       data.forEach(acc => {
         if (this.footer.pair.mainCurrency != acc.currency) {
           this.footer.pair.items.push({
