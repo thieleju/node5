@@ -3,8 +3,11 @@ import App from "./App.vue"
 import router from "./router"
 import store from "./store"
 import vuetify from "./plugins/vuetify"
+import axiosPlugin from "./plugins/axios"
 
 Vue.config.productionTip = false
+
+Vue.use(axiosPlugin)
 
 new Vue({
   router,

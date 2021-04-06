@@ -7,12 +7,10 @@
 </template>
 
 <script>
-import store from "../store"
-
 export default {
   created() {
-    if (store.getters["isAuthenticated"]) {
-      this.$router.push({ name: "dashboard" })
+    if (this.$store.getters["isAuthenticated"]) {
+      this.$router.push({ name: "home.start" })
     } else {
       this.$router.push({ name: "login" })
     }

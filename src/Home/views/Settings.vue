@@ -135,7 +135,6 @@
 
 <script>
 import axios from "axios"
-
 import Swal from "sweetalert2"
 
 export default {
@@ -185,13 +184,11 @@ export default {
   created() {
     // get username
     let username = this.$store.getters.getUser.username
-    axios
-      .get(this.$store.getters.getAPIUrl + "/config/coinbaseconfig")
-      .then(data => {
-        // init config
-        this.config = data.data
-        this.setAllDataFieldsFromConfig(this.config)
-      })
+    axios.get("/config/coinbaseconfig").then(data => {
+      // init config
+      this.config = data.data
+      this.setAllDataFieldsFromConfig(this.config)
+    })
   },
   methods: {
     setAllDataFieldsFromConfig(config) {
@@ -233,35 +230,33 @@ export default {
       }
       console.log(payload)
       // send Post with settings payload to backend
-      axios
-        .post(this.$store.getters.getAPIUrl + "/saveSettings", payload)
-        .then(data => {
-          if (data.data.status == "success") {
-            Swal.mixin({
-              toast: true,
-              position: "top",
-              showConfirmButton: false,
-              padding: "1.3rem",
-              timer: 800,
-              timerProgressBar: false
-            }).fire({
-              icon: "success",
-              title: data.data.message
-            })
-          } else {
-            Swal.mixin({
-              toast: true,
-              position: "top",
-              padding: "1.3rem",
-              showConfirmButton: false,
-              timer: 1200,
-              timerProgressBar: false
-            }).fire({
-              icon: "error",
-              title: data.data.message
-            })
-          }
-        })
+      axios.post("/saveSettings", payload).then(data => {
+        if (data.data.status == "success") {
+          Swal.mixin({
+            toast: true,
+            position: "top",
+            showConfirmButton: false,
+            padding: "1.3rem",
+            timer: 800,
+            timerProgressBar: false
+          }).fire({
+            icon: "success",
+            title: data.data.message
+          })
+        } else {
+          Swal.mixin({
+            toast: true,
+            position: "top",
+            padding: "1.3rem",
+            showConfirmButton: false,
+            timer: 1200,
+            timerProgressBar: false
+          }).fire({
+            icon: "error",
+            title: data.data.message
+          })
+        }
+      })
     }
   }
 }

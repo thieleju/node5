@@ -94,9 +94,6 @@ export default {
   components: {
     apexchart: VueApexCharts
   },
-  props: {
-    propData: Array
-  },
   data() {
     return {
       accountListData: null,
@@ -207,30 +204,30 @@ export default {
       }
     }
   },
-  created() {
+  async created() {
     // init account list
-    this.initAccountList(this.propData)
+    this.initAccountList()
     // init graph
-    this.initGraph(this.propData)
+    this.initGraph()
   },
   methods: {
     updatefooterCandle(item, index) {
       this.footer.candles.selected = item.title
       this.footer.candles.selectedValue = this.footer.candles.items[index].value
       // reload graph
-      this.initGraph(this.propData)
+      this.initGraph()
     },
     updatefooterCandleCount(item) {
       this.footer.candleCount.selected = item.value
       // reload graph
-      this.initGraph(this.propData)
+      this.initGraph()
     },
     updatefooterPair(item) {
       this.footer.pair.selected = item.title
       // reload graph
-      this.initGraph(this.propData)
+      this.initGraph()
     },
-    initGraph(data) {
+    initGraph() {
       let series = []
       let arr = []
 
@@ -239,11 +236,11 @@ export default {
         granularity: this.footer.candles.selectedValue,
         amount: this.footer.candleCount.selected
       }
-      axios
-        .post(this.$store.getters.getAPIUrl + "/coinbase/pub/candles", payload)
+      this.$store
+        .dispatch("getCandles", payload)
         .then(candles => {
           // Candels received successully
-          for (let i = 0; i < this.footer.candleCount.selected; i++) {
+          for (let i = 0; i < candles.data.candles.length; i++) {
             let candle = candles.data.candles[i]
             arr.push({
               x: new Date(candle.openTimeInISO),
@@ -257,30 +254,19 @@ export default {
       // give data to chart
       this.mainchart.series = series
     },
-    initAccountList(data) {
-      data.forEach(acc => {
-        if (this.footer.pair.mainCurrency != acc.currency) {
-          this.footer.pair.items.push({
-            title: acc.currency + "-" + this.footer.pair.mainCurrency,
-            value: acc.currency
-          })
-        }
+    initAccountList() {
+      this.$store.dispatch("getProductTypes").then(data => {
+        let products = data.data.products
+        products.forEach(element => {
+          if (element.enabled) {
+            this.footer.pair.items.push({
+              title: element.name,
+              value: element.name
+            })
+          }
+        })
       })
     }
   }
 }
 </script>
-
-<style lang="css" scoped>
-.cont {
-  margin-left: 2%;
-  margin-right: 2%;
-  margin-top: 2%;
-  max-width: 100%;
-  max-height: 100%;
-}
-.textColor {
-  color: var(--v-primary-base);
-  word-break: break-word;
-}
-</style>

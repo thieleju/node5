@@ -56,9 +56,6 @@
 import axios from "axios"
 
 export default {
-  props: {
-    propData: Array
-  },
   data() {
     return {
       tab: null,
@@ -105,14 +102,16 @@ export default {
   },
   created() {
     // init account list
-    this.buildDataTablesData(this.propData)
+    this.buildDataTablesData()
   },
   methods: {
-    buildDataTablesData(accounts) {
+    async buildDataTablesData() {
       let promisesArray = []
       let roundToDigits = 6
       let mainCurrency = "EUR"
       let mainCurrencyBalance = 0
+
+      let accounts = await this.$store.dispatch("accounts")
 
       // filter eur
       mainCurrencyBalance = accounts.filter(
@@ -126,12 +125,7 @@ export default {
         let payload = {
           pair: acc.currency + "-" + mainCurrency
         }
-        promisesArray.push(
-          axios.post(
-            this.$store.getters.getAPIUrl + "/coinbase/pub/marketPrice",
-            payload
-          )
-        )
+        promisesArray.push(axios.post("/coinbase/pub/marketPrice", payload))
       })
       // resolve all promises
       Promise.all(promisesArray).then(data => {

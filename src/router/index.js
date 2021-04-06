@@ -1,18 +1,27 @@
 import Vue from "vue"
 import VueRouter from "vue-router"
-import Login from "../views/Login.vue"
-import Register from "../views/Register.vue"
-import Dashboard from "../views/Dashboard.vue"
-import Startpage from "../views/Startpage.vue"
-
 import store from "../store"
+// # Navigation
+// views
+import Startpage from "../Navigation/views/Startpage.vue"
+import Login from "../Navigation/views/Login.vue"
+import Register from "../Navigation/views/Register.vue"
+// # Home
+// views
+import Home from "../Home/Home.vue"
+// children
+import Start from "../Home/views/Start.vue"
+import Dashboard from "../Home/views/Dashboard.vue"
+import Portfolio from "../Home/views/Portfolio.vue"
+import Bots from "../Home/views/Bots.vue"
+import Settings from "../Home/views/Settings.vue"
 
 Vue.use(VueRouter)
 
 const routes = [
   {
     path: "/",
-    name: "start",
+    name: "startpage",
     component: Startpage
   },
   {
@@ -26,13 +35,42 @@ const routes = [
     component: Register
   },
   {
-    path: "/dashboard",
-    name: "dashboard",
-    component: Dashboard,
+    path: "/home",
+    name: "home",
+    component: Home,
     meta: {
       requiresAuth: true
-    }
+    },
+    children: [
+      { path: "", redirect: { name: "home.start" } },
+      {
+        path: "/home/start",
+        name: "home.start",
+        component: Start
+      },
+      {
+        path: "/home/dashboard",
+        name: "home.dashboard",
+        component: Dashboard
+      },
+      {
+        path: "/home/portfolio",
+        name: "home.portfolio",
+        component: Portfolio
+      },
+      {
+        path: "/home/bots",
+        name: "home.bots",
+        component: Bots
+      },
+      {
+        path: "/home/settings",
+        name: "home.settings",
+        component: Settings
+      }
+    ]
   },
+
   // {
   //   path: "/admin",
   //   name: "admin",
@@ -75,7 +113,7 @@ router.beforeEach((to, from, next) => {
     // this route requires auth, check if logged in
     // if not, redirect to login page.
     if (!store.getters["isAuthenticated"]) {
-      next({ name: "start" })
+      next({ name: "startpage" })
     } else {
       next()
     }

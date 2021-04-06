@@ -23,12 +23,10 @@ export default {
   methods: {
     openDSGVO() {
       if (!this.dsgvo) {
-        axios
-          .get(this.$store.getters.getAPIUrl + "/public/dsgvo")
-          .then(data => {
-            this.dsgvo = data.data
-            this.showSwal(data.data)
-          })
+        axios.get("/public/dsgvo").then(data => {
+          this.dsgvo = data.data
+          this.showSwal(data.data)
+        })
       } else {
         this.showSwal(this.dsgvo)
       }

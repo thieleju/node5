@@ -59,7 +59,7 @@ export default {
   created() {
     // redirect to dashboard if logged in
     if (this.$store.getters["isAuthenticated"]) {
-      this.$router.push({ name: "dashboard" })
+      this.$router.push({ name: "home.start" })
     }
   },
   methods: {
@@ -92,7 +92,7 @@ export default {
         timer: 800,
         timerProgressBar: false,
         willClose: toast => {
-          this.$router.push({ name: "dashboard" })
+          this.$router.push({ name: "home.start" })
         }
       }).fire({
         icon: "success",
@@ -119,7 +119,7 @@ export default {
 
 <style lang="scss">
 .backgroundImage {
-  background-image: url("../assets/wallpaper/legacy_small.jpg");
+  background-image: url("../../assets/wallpaper/legacy_small.jpg");
   background-size: cover;
 }
 
