@@ -19,26 +19,16 @@
     "@sweetalert2/themes": "^4.0.3",
     "apexcharts": "^3.26.0",
     "axios": "^0.21.1",
-    "body-parser": "^1.19.0",
-    "coinbase-pro-node": "^2.19.0",
-    "cors": "^2.8.5",
-    "crypto-js": "^4.0.0",
     "dotenv": "^8.2.0",
-    "events": "^3.3.0",
-    "express": "^4.17.1",
-    "jsonwebtoken": "^8.5.1",
     "moment": "^2.29.1",
-    "mongoose": "^5.12.2",
-    "mysql": "^2.18.1",
-    "please-wait": "0.0.5",
     "sass-loader": "^10.1.1",
     "sweetalert2": "^10.15.7",
     "vue": "^2.6.12",
     "vue-apexcharts": "^1.6.0",
     "vue-router": "^3.5.1",
+    "vue-template-compiler": "^2.6.12",
     "vuetify": "^2.4.8",
-    "vuex": "^3.6.2",
-    "worker-threads": "^1.0.0"
+    "vuex": "^3.6.2"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "^4.5.12",
@@ -51,11 +41,8 @@
     "eslint": "^6.7.2",
     "eslint-plugin-prettier": "^3.3.1",
     "eslint-plugin-vue": "^6.2.2",
-    "nodemon": "^2.0.7",
     "prettier": "^1.19.1",
     "sass": "^1.32.8",
-    "vue-cli-plugin-vuetify": "^2.0.9",
-    "vue-template-compiler": "^2.6.11",
-    "vuetify-loader": "^1.7.2"
+    "vue-cli-plugin-vuetify": "^2.0.9"
   }
 }
